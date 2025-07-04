@@ -1,302 +1,503 @@
 // 等待DOM加载完成
 document.addEventListener('DOMContentLoaded', function() {
+    initializePage();
+});
+
+// 初始化页面
+function initializePage() {
+    loadTabs();
+    loadSidebar(config.tabs[0].id);
+    initializeEventListeners();
+}
+
+// 加载标签页
+function loadTabs() {
+    const tabsContainer = document.querySelector('.nav-tabs');
+    config.tabs.forEach(tab => {
+        const tabButton = document.createElement('button');
+        tabButton.className = 'tab-item';
+        tabButton.setAttribute('data-tab', tab.id);
+        tabButton.innerHTML = `<i class="${tab.icon}"></i>${tab.name}`;
+        tabsContainer.appendChild(tabButton);
+    });
     
-    // 平滑滚动到指定部分
-    function scrollToSection(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (section) {
-            section.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
+    // 激活第一个标签页
+    const firstTab = document.querySelector('.tab-item');
+    if (firstTab) {
+        firstTab.classList.add('active');
     }
+}
 
-    // 为快速导航卡片添加点击事件
-    const navCards = document.querySelectorAll('.nav-card');
-    navCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const onclick = this.getAttribute('onclick');
-            if (onclick) {
-                const sectionId = onclick.match(/scrollToSection\('(.+)'\)/)[1];
-                scrollToSection(sectionId);
-            }
-        });
+// 切换标签页
+function switchTab(tabId) {
+    // 更新标签页状态
+    document.querySelectorAll('.tab-item').forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-tab') === tabId);
     });
 
-    // 导航链接平滑滚动
-    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href').substring(1);
-            scrollToSection(targetId);
-        });
-    });
+    // 加载对应的侧边栏
+    loadSidebar(tabId);
 
-    // 页面滚动时的导航高亮
-    function updateActiveNavLink() {
-        const sections = document.querySelectorAll('section[id]');
-        const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+    // 清空内容区域
+    const content = document.querySelector('.content');
+    content.innerHTML = '';
+}
+
+// 加载侧边栏
+function loadSidebar(tabId) {
+    const sidebar = document.querySelector('.category-nav');
+    sidebar.innerHTML = '';
+
+    const currentTab = config.tabs.find(tab => tab.id === tabId);
+    if (!currentTab) return;
+
+    currentTab.categories.forEach(category => {
+        const categoryGroup = document.createElement('div');
+        categoryGroup.className = 'nav-group';
         
-        let currentSection = '';
-        const scrollPos = window.scrollY + 100; // 偏移量
-
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.offsetHeight;
-            
-            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-                currentSection = section.getAttribute('id');
-            }
-        });
-
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + currentSection) {
-                link.classList.add('active');
-            }
-        });
-    }
-
-    // 监听滚动事件
-    window.addEventListener('scroll', throttle(updateActiveNavLink, 100));
-
-    // 节流函数
-    function throttle(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // 搜索功能
-    function createSearchFeature() {
-        // 创建搜索框
-        const searchContainer = document.createElement('div');
-        searchContainer.className = 'search-container';
-        searchContainer.innerHTML = `
-            <input type="text" id="searchInput" placeholder="搜索资源..." class="search-input">
-            <div id="searchResults" class="search-results"></div>
+        const header = document.createElement('div');
+        header.className = 'nav-group-header';
+        header.innerHTML = `
+            <span>${category.name}</span>
+            <i class="fas fa-chevron-down"></i>
         `;
+        
+        const content = document.createElement('div');
+        content.className = 'nav-group-content';
+        
+        category.subcategories.forEach(subcategory => {
+            const subgroup = document.createElement('div');
+            subgroup.className = 'nav-subgroup';
+            subgroup.innerHTML = `
+                <div class="nav-subgroup-header">
+                    <span>${subcategory.name}</span>
+                </div>
+            `;
+            
+            subgroup.addEventListener('click', () => {
+                document.querySelectorAll('.nav-subgroup').forEach(sg => {
+                    sg.classList.remove('active');
+                });
+                subgroup.classList.add('active');
+                showContent(category.name, subcategory);
+            });
+            
+            content.appendChild(subgroup);
+        });
+        
+        categoryGroup.appendChild(header);
+        categoryGroup.appendChild(content);
+        sidebar.appendChild(categoryGroup);
 
-        // 将搜索框插入到快速导航区域
-        const quickNav = document.querySelector('.quick-nav .container');
-        if (quickNav) {
-            quickNav.insertBefore(searchContainer, quickNav.firstChild);
-        }
+        // 添加折叠/展开功能
+        header.addEventListener('click', () => {
+            categoryGroup.classList.toggle('collapsed');
+        });
+    });
 
-        // 搜索功能实现
-        const searchInput = document.getElementById('searchInput');
-        const searchResults = document.getElementById('searchResults');
+    // 默认点击第一个子分类
+    const firstSubgroup = sidebar.querySelector('.nav-subgroup');
+    if (firstSubgroup) {
+        firstSubgroup.click();
+    }
+}
 
-        if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                const query = this.value.toLowerCase().trim();
-                
-                if (query.length < 2) {
-                    searchResults.innerHTML = '';
-                    searchResults.style.display = 'none';
-                    return;
-                }
+// 显示内容
+function showContent(categoryName, item) {
+    const content = document.querySelector('.content');
+    content.innerHTML = `
+        <div class="content-header">
+            <h2>${item.name}</h2>
+            <p>${categoryName} > ${item.name}</p>
+        </div>
+        <table class="tools-table">
+            <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>描述</th>
+                    <th>链接</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${item.tools.map(tool => `
+                    <tr>
+                        <td>${tool.name}</td>
+                        <td>${tool.description}</td>
+                        <td>
+                            ${tool.links.map(link => `
+                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">
+                                    ${link.text}
+                                </a>
+                            `).join(' | ')}
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
 
-                // 搜索所有链接
-                const allLinks = document.querySelectorAll('.resource-list a');
-                const results = [];
+// 搜索工具
+function searchTools(keyword) {
+    if (!keyword.trim()) {
+        return;
+    }
 
-                allLinks.forEach(link => {
-                    const text = link.textContent.toLowerCase();
-                    if (text.includes(query)) {
-                        results.push({
-                            title: link.textContent,
-                            url: link.href,
-                            category: link.closest('.resource-category')?.querySelector('.category-title')?.textContent || '未分类'
+    const searchResults = [];
+    keyword = keyword.toLowerCase();
+
+    config.tabs.forEach(tab => {
+        tab.categories.forEach(category => {
+            category.subcategories.forEach(subcategory => {
+                subcategory.tools.forEach(tool => {
+                    if (
+                        tool.name.toLowerCase().includes(keyword) ||
+                        tool.description.toLowerCase().includes(keyword)
+                    ) {
+                        searchResults.push({
+                            tool,
+                            category: category.name,
+                            subcategory: subcategory.name,
+                            tab: tab.name
                         });
                     }
                 });
-
-                // 显示搜索结果
-                if (results.length > 0) {
-                    searchResults.innerHTML = results.slice(0, 10).map(result => `
-                        <div class="search-result-item">
-                            <a href="${result.url}" target="_blank">
-                                <div class="result-title">${result.title}</div>
-                                <div class="result-category">${result.category}</div>
-                            </a>
-                        </div>
-                    `).join('');
-                    searchResults.style.display = 'block';
-                } else {
-                    searchResults.innerHTML = '<div class="no-results">未找到相关资源</div>';
-                    searchResults.style.display = 'block';
-                }
-            });
-
-            // 点击外部区域隐藏搜索结果
-            document.addEventListener('click', function(e) {
-                if (!searchContainer.contains(e.target)) {
-                    searchResults.style.display = 'none';
-                }
-            });
-        }
-    }
-
-    // 统计功能
-    function updateStats() {
-        const resourceLinks = document.querySelectorAll('.resource-list a').length;
-        const categories = document.querySelectorAll('.resource-category').length;
-        const sections = document.querySelectorAll('.content-section').length;
-
-        // 更新统计数字
-        const statNumbers = document.querySelectorAll('.stat-number');
-        if (statNumbers.length >= 3) {
-            statNumbers[0].textContent = resourceLinks + '+';
-            statNumbers[1].textContent = categories + '+';
-            statNumbers[2].textContent = sections + '+';
-        }
-    }
-
-    // 动画效果
-    function addAnimations() {
-        // 创建 Intersection Observer
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-in');
-                }
-            });
-        }, {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        });
-
-        // 观察所有需要动画的元素
-        const animateElements = document.querySelectorAll('.resource-category, .nav-card');
-        animateElements.forEach(el => {
-            observer.observe(el);
-        });
-    }
-
-    // 返回顶部按钮
-    function createBackToTopButton() {
-        const backToTop = document.createElement('button');
-        backToTop.innerHTML = '↑';
-        backToTop.className = 'back-to-top';
-        backToTop.setAttribute('aria-label', '返回顶部');
-        
-        backToTop.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
             });
         });
+    });
 
-        document.body.appendChild(backToTop);
+    const content = document.querySelector('.content');
+    content.innerHTML = `
+        <div class="content-header">
+            <h2>搜索结果</h2>
+            <p>关键词: ${keyword}</p>
+        </div>
+        ${searchResults.length ? `
+            <table class="tools-table">
+                <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>描述</th>
+                        <th>分类</th>
+                        <th>链接</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${searchResults.map(result => `
+                        <tr>
+                            <td>${result.tool.name}</td>
+                            <td>${result.tool.description}</td>
+                            <td>${result.tab} > ${result.category} > ${result.subcategory}</td>
+                            <td>
+                                ${result.tool.links.map(link => `
+                                    <a href="${link.url}" target="_blank" rel="noopener noreferrer">
+                                        ${link.text}
+                                    </a>
+                                `).join(' | ')}
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        ` : '<p>未找到相关工具</p>'}
+    `;
+}
 
-        // 控制按钮显示/隐藏
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 500) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
-            }
-        });
-    }
-
-    // 主题切换功能
-    function createThemeToggle() {
-        const themeToggle = document.createElement('button');
-        themeToggle.innerHTML = '🌙';
-        themeToggle.className = 'theme-toggle';
-        themeToggle.setAttribute('aria-label', '切换主题');
-        
-        // 添加到导航栏
-        const navMenu = document.querySelector('.nav-menu');
-        if (navMenu) {
-            const themeItem = document.createElement('li');
-            themeItem.className = 'nav-item';
-            themeItem.appendChild(themeToggle);
-            navMenu.appendChild(themeItem);
+// 初始化事件监听
+function initializeEventListeners() {
+    // 标签页切换
+    document.querySelector('.nav-tabs').addEventListener('click', (e) => {
+        const tabButton = e.target.closest('.tab-item');
+        if (tabButton) {
+            const tabId = tabButton.getAttribute('data-tab');
+            switchTab(tabId);
         }
+    });
 
-        // 检查本地存储的主题设置
-        const currentTheme = localStorage.getItem('theme');
-        if (currentTheme === 'dark') {
-            document.body.classList.add('dark-theme');
-            themeToggle.innerHTML = '☀️';
+    // 搜索功能
+    const searchInput = document.querySelector('.search-input');
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            searchTools(e.target.value);
+        }, 300);
+    });
+}
+
+// 平滑滚动到指定部分
+function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+}
+
+// 为快速导航卡片添加点击事件
+const navCards = document.querySelectorAll('.nav-card');
+navCards.forEach(card => {
+    card.addEventListener('click', function() {
+        const onclick = this.getAttribute('onclick');
+        if (onclick) {
+            const sectionId = onclick.match(/scrollToSection\('(.+)'\)/)[1];
+            scrollToSection(sectionId);
         }
-
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-theme');
-            
-            if (document.body.classList.contains('dark-theme')) {
-                themeToggle.innerHTML = '☀️';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                themeToggle.innerHTML = '🌙';
-                localStorage.setItem('theme', 'light');
-            }
-        });
-    }
-
-    // 访问统计
-    function trackVisits() {
-        let visits = localStorage.getItem('siteVisits') || 0;
-        visits = parseInt(visits) + 1;
-        localStorage.setItem('siteVisits', visits);
-        
-        console.log(`您是第 ${visits} 次访问本站`);
-    }
-
-    // 键盘快捷键
-    function setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            // Ctrl + K 或 Cmd + K 打开搜索
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                const searchInput = document.getElementById('searchInput');
-                if (searchInput) {
-                    searchInput.focus();
-                }
-            }
-            
-            // ESC 关闭搜索结果
-            if (e.key === 'Escape') {
-                const searchResults = document.getElementById('searchResults');
-                if (searchResults) {
-                    searchResults.style.display = 'none';
-                }
-            }
-        });
-    }
-
-    // 初始化所有功能
-    function init() {
-        createSearchFeature();
-        updateStats();
-        addAnimations();
-        createBackToTopButton();
-        createThemeToggle();
-        trackVisits();
-        setupKeyboardShortcuts();
-        
-        // 初始化导航高亮
-        updateActiveNavLink();
-        
-        console.log('Gopher Navigator 已加载完成！');
-    }
-
-    // 执行初始化
-    init();
-
-    // 全局暴露scrollToSection函数
-    window.scrollToSection = scrollToSection;
+    });
 });
+
+// 导航链接平滑滚动
+const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+navLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href').substring(1);
+        scrollToSection(targetId);
+    });
+});
+
+// 页面滚动时的导航高亮
+function updateActiveNavLink() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+    
+    let currentSection = '';
+    const scrollPos = window.scrollY + 100; // 偏移量
+
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        
+        if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+            currentSection = section.getAttribute('id');
+        }
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + currentSection) {
+            link.classList.add('active');
+        }
+    });
+}
+
+// 监听滚动事件
+window.addEventListener('scroll', throttle(updateActiveNavLink, 100));
+
+// 节流函数
+function throttle(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// 搜索功能
+function createSearchFeature() {
+    // 创建搜索框
+    const searchContainer = document.createElement('div');
+    searchContainer.className = 'search-container';
+    searchContainer.innerHTML = `
+        <input type="text" id="searchInput" placeholder="搜索资源..." class="search-input">
+        <div id="searchResults" class="search-results"></div>
+    `;
+
+    // 将搜索框插入到快速导航区域
+    const quickNav = document.querySelector('.quick-nav .container');
+    if (quickNav) {
+        quickNav.insertBefore(searchContainer, quickNav.firstChild);
+    }
+
+    // 搜索功能实现
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            
+            if (query.length < 2) {
+                searchResults.innerHTML = '';
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            // 搜索所有链接
+            const allLinks = document.querySelectorAll('.resource-list a');
+            const results = [];
+
+            allLinks.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    results.push({
+                        title: link.textContent,
+                        url: link.href,
+                        category: link.closest('.resource-category')?.querySelector('.category-title')?.textContent || '未分类'
+                    });
+                }
+            });
+
+            // 显示搜索结果
+            if (results.length > 0) {
+                searchResults.innerHTML = results.slice(0, 10).map(result => `
+                    <div class="search-result-item">
+                        <a href="${result.url}" target="_blank">
+                            <div class="result-title">${result.title}</div>
+                            <div class="result-category">${result.category}</div>
+                        </a>
+                    </div>
+                `).join('');
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.innerHTML = '<div class="no-results">未找到相关资源</div>';
+                searchResults.style.display = 'block';
+            }
+        });
+
+        // 点击外部区域隐藏搜索结果
+        document.addEventListener('click', function(e) {
+            if (!searchContainer.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+    }
+}
+
+// 统计功能
+function updateStats() {
+    const resourceLinks = document.querySelectorAll('.resource-list a').length;
+    const categories = document.querySelectorAll('.resource-category').length;
+    const sections = document.querySelectorAll('.content-section').length;
+
+    // 更新统计数字
+    const statNumbers = document.querySelectorAll('.stat-number');
+    if (statNumbers.length >= 3) {
+        statNumbers[0].textContent = resourceLinks + '+';
+        statNumbers[1].textContent = categories + '+';
+        statNumbers[2].textContent = sections + '+';
+    }
+}
+
+// 动画效果
+function addAnimations() {
+    // 创建 Intersection Observer
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    // 观察所有需要动画的元素
+    const animateElements = document.querySelectorAll('.resource-category, .nav-card');
+    animateElements.forEach(el => {
+        observer.observe(el);
+    });
+}
+
+// 返回顶部按钮
+function createBackToTopButton() {
+    const backToTop = document.createElement('button');
+    backToTop.innerHTML = '↑';
+    backToTop.className = 'back-to-top';
+    backToTop.setAttribute('aria-label', '返回顶部');
+    
+    backToTop.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+
+    document.body.appendChild(backToTop);
+
+    // 控制按钮显示/隐藏
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 500) {
+            backToTop.classList.add('visible');
+        } else {
+            backToTop.classList.remove('visible');
+        }
+    });
+}
+
+// 主题切换功能
+function createThemeToggle() {
+    const themeToggle = document.createElement('button');
+    themeToggle.innerHTML = '🌙';
+    themeToggle.className = 'theme-toggle';
+    themeToggle.setAttribute('aria-label', '切换主题');
+    
+    // 添加到导航栏
+    const navMenu = document.querySelector('.nav-menu');
+    if (navMenu) {
+        const themeItem = document.createElement('li');
+        themeItem.className = 'nav-item';
+        themeItem.appendChild(themeToggle);
+        navMenu.appendChild(themeItem);
+    }
+
+    // 检查本地存储的主题设置
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        themeToggle.innerHTML = '☀️';
+    }
+
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme');
+        
+        if (document.body.classList.contains('dark-theme')) {
+            themeToggle.innerHTML = '☀️';
+            localStorage.setItem('theme', 'dark');
+        } else {
+            themeToggle.innerHTML = '🌙';
+            localStorage.setItem('theme', 'light');
+        }
+    });
+}
+
+// 访问统计
+function trackVisits() {
+    let visits = localStorage.getItem('siteVisits') || 0;
+    visits = parseInt(visits) + 1;
+    localStorage.setItem('siteVisits', visits);
+    
+    console.log(`您是第 ${visits} 次访问本站`);
+}
+
+// 键盘快捷键
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        // Ctrl + K 或 Cmd + K 打开搜索
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.focus();
+            }
+        }
+        
+        // ESC 关闭搜索结果
+        if (e.key === 'Escape') {
+            const searchResults = document.getElementById('searchResults');
+            if (searchResults) {
+                searchResults.style.display = 'none';
+            }
+        }
+    });
+}
 
 // 添加额外的CSS样式
 const additionalStyles = `
@@ -476,3 +677,43 @@ const additionalStyles = `
 const styleSheet = document.createElement('style');
 styleSheet.textContent = additionalStyles;
 document.head.appendChild(styleSheet);
+
+// 数据存储
+let knowledgeBase = {
+    vuln: {
+        rce: [
+            {
+                title: "Spring4Shell远程代码执行漏洞",
+                severity: "high",
+                description: "Spring Framework远程代码执行漏洞(CVE-2022-22965)",
+                tags: ["Spring", "RCE", "Java"],
+                links: {
+                    analysis: "#",
+                    poc: "#"
+                }
+            }
+        ]
+    }
+};
+
+// DOM元素
+const elements = {
+    categoryTabs: document.querySelector('.category-tabs'),
+    sidebars: document.querySelectorAll('.sidebar'),
+    contentSection: document.querySelector('.content'),
+    searchInputs: document.querySelectorAll('.search-input'),
+    addContentBtn: document.getElementById('addContentBtn'),
+    darkModeBtn: document.getElementById('darkModeBtn'),
+    modal: document.getElementById('addModal'),
+    addContentForm: document.getElementById('addContentForm')
+};
+
+// 当前状态
+let currentState = {
+    tab: null,
+    category: null,
+    item: null
+};
+
+// 标签页状态记录
+const tabStates = {};
