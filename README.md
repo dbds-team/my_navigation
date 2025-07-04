@@ -51,6 +51,8 @@ npx http-server
 
 ### GitHub Pages部署
 
+#### 方法一：自动部署 (推荐)
+
 1. Fork这个项目到你的GitHub账户
 
 2. 进入项目设置页面：
@@ -58,12 +60,30 @@ npx http-server
    - 在左侧菜单中找到 "Pages"
 
 3. 配置GitHub Pages：
-   - Source: 选择 "Deploy from a branch"
-   - Branch: 选择 "main" 分支
-   - Folder: 选择 "/ (root)"
-   - 点击 "Save"
+   - **Source**: 选择 "GitHub Actions"
+   - 保存设置
 
-4. 等待几分钟，你的网站将在 `https://yourusername.github.io/gopher-navigator` 上线
+4. 检查权限设置：
+   - 进入 "Settings" → "Actions" → "General"
+   - Workflow permissions: 选择 "Read and write permissions"
+   - 勾选 "Allow GitHub Actions to create and approve pull requests"
+
+5. 推送代码到main分支，GitHub Actions会自动部署
+
+#### 方法二：如果遇到部署错误
+
+如果看到 "Get Pages site failed" 错误：
+
+1. **使用备用配置**：将 `.github/workflows/deploy-alternative.yml` 重命名为 `deploy.yml`
+
+2. **或者使用传统分支部署**：
+   - 在仓库设置中，Source 选择 "Deploy from a branch" 
+   - Branch 选择 "main"，Folder 选择 "/ (root)"
+
+3. **详细故障排除**：参考 `GitHub_Pages_Setup.md` 文件
+
+#### 验证部署
+网站将在 `https://yourusername.github.io/gopher-navigator` 上线，通常需要5-10分钟生效。
 
 ### 自定义域名（可选）
 
