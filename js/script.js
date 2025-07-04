@@ -1,478 +1,599 @@
+// 全局状态管理
+const AppState = {
+    currentMainTab: 'vuln',
+    currentSubTab: 'vuln-web',
+    theme: 'light',
+    resources: {}
+};
+
 // 等待DOM加载完成
 document.addEventListener('DOMContentLoaded', function() {
-    
-    // 平滑滚动到指定部分
-    function scrollToSection(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (section) {
-            section.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    }
-
-    // 为快速导航卡片添加点击事件
-    const navCards = document.querySelectorAll('.nav-card');
-    navCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const onclick = this.getAttribute('onclick');
-            if (onclick) {
-                const sectionId = onclick.match(/scrollToSection\('(.+)'\)/)[1];
-                scrollToSection(sectionId);
-            }
-        });
-    });
-
-    // 导航链接平滑滚动
-    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href').substring(1);
-            scrollToSection(targetId);
-        });
-    });
-
-    // 页面滚动时的导航高亮
-    function updateActiveNavLink() {
-        const sections = document.querySelectorAll('section[id]');
-        const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
-        
-        let currentSection = '';
-        const scrollPos = window.scrollY + 100; // 偏移量
-
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.offsetHeight;
-            
-            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-                currentSection = section.getAttribute('id');
-            }
-        });
-
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + currentSection) {
-                link.classList.add('active');
-            }
-        });
-    }
-
-    // 监听滚动事件
-    window.addEventListener('scroll', throttle(updateActiveNavLink, 100));
-
-    // 节流函数
-    function throttle(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // 搜索功能
-    function createSearchFeature() {
-        // 创建搜索框
-        const searchContainer = document.createElement('div');
-        searchContainer.className = 'search-container';
-        searchContainer.innerHTML = `
-            <input type="text" id="searchInput" placeholder="搜索资源..." class="search-input">
-            <div id="searchResults" class="search-results"></div>
-        `;
-
-        // 将搜索框插入到快速导航区域
-        const quickNav = document.querySelector('.quick-nav .container');
-        if (quickNav) {
-            quickNav.insertBefore(searchContainer, quickNav.firstChild);
-        }
-
-        // 搜索功能实现
-        const searchInput = document.getElementById('searchInput');
-        const searchResults = document.getElementById('searchResults');
-
-        if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                const query = this.value.toLowerCase().trim();
-                
-                if (query.length < 2) {
-                    searchResults.innerHTML = '';
-                    searchResults.style.display = 'none';
-                    return;
-                }
-
-                // 搜索所有链接
-                const allLinks = document.querySelectorAll('.resource-list a');
-                const results = [];
-
-                allLinks.forEach(link => {
-                    const text = link.textContent.toLowerCase();
-                    if (text.includes(query)) {
-                        results.push({
-                            title: link.textContent,
-                            url: link.href,
-                            category: link.closest('.resource-category')?.querySelector('.category-title')?.textContent || '未分类'
-                        });
-                    }
-                });
-
-                // 显示搜索结果
-                if (results.length > 0) {
-                    searchResults.innerHTML = results.slice(0, 10).map(result => `
-                        <div class="search-result-item">
-                            <a href="${result.url}" target="_blank">
-                                <div class="result-title">${result.title}</div>
-                                <div class="result-category">${result.category}</div>
-                            </a>
-                        </div>
-                    `).join('');
-                    searchResults.style.display = 'block';
-                } else {
-                    searchResults.innerHTML = '<div class="no-results">未找到相关资源</div>';
-                    searchResults.style.display = 'block';
-                }
-            });
-
-            // 点击外部区域隐藏搜索结果
-            document.addEventListener('click', function(e) {
-                if (!searchContainer.contains(e.target)) {
-                    searchResults.style.display = 'none';
-                }
-            });
-        }
-    }
-
-    // 统计功能
-    function updateStats() {
-        const resourceLinks = document.querySelectorAll('.resource-list a').length;
-        const categories = document.querySelectorAll('.resource-category').length;
-        const sections = document.querySelectorAll('.content-section').length;
-
-        // 更新统计数字
-        const statNumbers = document.querySelectorAll('.stat-number');
-        if (statNumbers.length >= 3) {
-            statNumbers[0].textContent = resourceLinks + '+';
-            statNumbers[1].textContent = categories + '+';
-            statNumbers[2].textContent = sections + '+';
-        }
-    }
-
-    // 动画效果
-    function addAnimations() {
-        // 创建 Intersection Observer
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-in');
-                }
-            });
-        }, {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        });
-
-        // 观察所有需要动画的元素
-        const animateElements = document.querySelectorAll('.resource-category, .nav-card');
-        animateElements.forEach(el => {
-            observer.observe(el);
-        });
-    }
-
-    // 返回顶部按钮
-    function createBackToTopButton() {
-        const backToTop = document.createElement('button');
-        backToTop.innerHTML = '↑';
-        backToTop.className = 'back-to-top';
-        backToTop.setAttribute('aria-label', '返回顶部');
-        
-        backToTop.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-
-        document.body.appendChild(backToTop);
-
-        // 控制按钮显示/隐藏
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 500) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
-            }
-        });
-    }
-
-    // 主题切换功能
-    function createThemeToggle() {
-        const themeToggle = document.createElement('button');
-        themeToggle.innerHTML = '🌙';
-        themeToggle.className = 'theme-toggle';
-        themeToggle.setAttribute('aria-label', '切换主题');
-        
-        // 添加到导航栏
-        const navMenu = document.querySelector('.nav-menu');
-        if (navMenu) {
-            const themeItem = document.createElement('li');
-            themeItem.className = 'nav-item';
-            themeItem.appendChild(themeToggle);
-            navMenu.appendChild(themeItem);
-        }
-
-        // 检查本地存储的主题设置
-        const currentTheme = localStorage.getItem('theme');
-        if (currentTheme === 'dark') {
-            document.body.classList.add('dark-theme');
-            themeToggle.innerHTML = '☀️';
-        }
-
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-theme');
-            
-            if (document.body.classList.contains('dark-theme')) {
-                themeToggle.innerHTML = '☀️';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                themeToggle.innerHTML = '🌙';
-                localStorage.setItem('theme', 'light');
-            }
-        });
-    }
-
-    // 访问统计
-    function trackVisits() {
-        let visits = localStorage.getItem('siteVisits') || 0;
-        visits = parseInt(visits) + 1;
-        localStorage.setItem('siteVisits', visits);
-        
-        console.log(`您是第 ${visits} 次访问本站`);
-    }
-
-    // 键盘快捷键
-    function setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            // Ctrl + K 或 Cmd + K 打开搜索
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                const searchInput = document.getElementById('searchInput');
-                if (searchInput) {
-                    searchInput.focus();
-                }
-            }
-            
-            // ESC 关闭搜索结果
-            if (e.key === 'Escape') {
-                const searchResults = document.getElementById('searchResults');
-                if (searchResults) {
-                    searchResults.style.display = 'none';
-                }
-            }
-        });
-    }
-
-    // 初始化所有功能
-    function init() {
-        createSearchFeature();
-        updateStats();
-        addAnimations();
-        createBackToTopButton();
-        createThemeToggle();
-        trackVisits();
-        setupKeyboardShortcuts();
-        
-        // 初始化导航高亮
-        updateActiveNavLink();
-        
-        console.log('Gopher Navigator 已加载完成！');
-    }
-
-    // 执行初始化
-    init();
-
-    // 全局暴露scrollToSection函数
-    window.scrollToSection = scrollToSection;
+    initializeApp();
 });
 
-// 添加额外的CSS样式
-const additionalStyles = `
-    .search-container {
-        margin-bottom: 2rem;
-        position: relative;
-        max-width: 500px;
-        margin: 0 auto 2rem;
-    }
+function initializeApp() {
+    // 加载主题设置
+    loadTheme();
+    
+    // 初始化事件监听器
+    initializeEventListeners();
+    
+    // 加载资源数据
+    loadResources();
+    
+    // 设置默认显示状态
+    showDefaultContent();
+    
+    // 初始化搜索功能
+    initializeSearch();
+}
 
-    .search-input {
-        width: 100%;
-        padding: 1rem;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.3s ease;
-    }
+// 主题管理
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    AppState.theme = savedTheme;
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeButton();
+}
 
-    .search-input:focus {
-        border-color: #00ADD8;
-    }
+function toggleTheme() {
+    AppState.theme = AppState.theme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', AppState.theme);
+    localStorage.setItem('theme', AppState.theme);
+    updateThemeButton();
+}
 
-    .search-results {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        max-height: 400px;
-        overflow-y: auto;
-        z-index: 1000;
-        display: none;
+function updateThemeButton() {
+    const themeButton = document.querySelector('.theme-toggle');
+    if (themeButton) {
+        themeButton.textContent = AppState.theme === 'light' ? '🌙' : '☀️';
     }
+}
 
-    .search-result-item {
-        border-bottom: 1px solid #f0f0f0;
+// 标签页切换功能
+function switchMainTab(tabName) {
+    // 更新活动标签按钮
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // 隐藏所有侧边栏部分
+    document.querySelectorAll('.sidebar-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // 显示对应的侧边栏部分
+    const sidebarSection = document.getElementById(`sidebar-${tabName}`);
+    if (sidebarSection) {
+        sidebarSection.style.display = 'block';
     }
+    
+    // 更新当前主标签状态
+    AppState.currentMainTab = tabName;
+    
+    // 显示第一个子内容
+    showFirstSubContent(tabName);
+}
 
-    .search-result-item:last-child {
-        border-bottom: none;
+function showFirstSubContent(mainTab) {
+    // 隐藏所有内容区域
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.style.display = 'none';
+        section.classList.remove('active');
+    });
+    
+    // 获取第一个导航链接并显示对应内容
+    const firstLink = document.querySelector(`#sidebar-${mainTab} .nav-list a`);
+    if (firstLink) {
+        const contentId = firstLink.getAttribute('href').substring(1);
+        showContent(contentId);
+        
+        // 设置活动状态
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.classList.remove('active');
+        });
+        firstLink.classList.add('active');
     }
+}
 
-    .search-result-item a {
-        display: block;
-        padding: 1rem;
-        text-decoration: none;
-        color: #333;
-        transition: background-color 0.3s ease;
+// 内容显示功能
+function showContent(contentId) {
+    // 隐藏所有内容区域
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.style.display = 'none';
+        section.classList.remove('active');
+    });
+    
+    // 显示指定内容
+    const targetContent = document.getElementById(`content-${contentId}`);
+    if (targetContent) {
+        targetContent.style.display = 'block';
+        targetContent.classList.add('active');
+    } else {
+        // 如果内容不存在，显示占位符
+        showPlaceholderContent(contentId);
     }
-
-    .search-result-item a:hover {
-        background-color: #f8f9fa;
+    
+    // 更新侧边栏活动状态
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    const activeLink = document.querySelector(`a[href="#${contentId}"]`);
+    if (activeLink) {
+        activeLink.classList.add('active');
     }
-
-    .result-title {
-        font-weight: 600;
-        margin-bottom: 0.2rem;
+    
+    // 更新当前子标签状态
+    AppState.currentSubTab = contentId;
+    
+    // 在移动端关闭侧边栏
+    if (window.innerWidth <= 768) {
+        closeMobileSidebar();
     }
+}
 
-    .result-category {
-        font-size: 0.8rem;
-        color: #666;
+function showPlaceholderContent(contentId) {
+    // 创建占位符内容
+    const contentArea = document.querySelector('.content-area');
+    const existingContent = document.querySelector('.content-section.active');
+    
+    if (existingContent) {
+        existingContent.remove();
     }
+    
+    const placeholderHTML = `
+        <div class="content-section active" id="content-${contentId}">
+            <div class="content-header">
+                <h2>${getContentTitle(contentId)}</h2>
+                <button class="add-btn" onclick="showAddForm('${contentId}')">+ 添加资源</button>
+            </div>
+            <div class="placeholder">
+                <p>🚧 此模块正在完善中，点击"添加资源"开始构建内容...</p>
+            </div>
+        </div>
+    `;
+    
+    contentArea.innerHTML = placeholderHTML;
+}
 
-    .no-results {
-        padding: 1rem;
-        text-align: center;
-        color: #666;
+function getContentTitle(contentId) {
+    const titleMap = {
+        'vuln-web': 'Web漏洞挖掘',
+        'vuln-binary': '二进制漏洞分析',
+        'vuln-mobile': '移动应用安全',
+        'vuln-cloud': '云安全',
+        'vuln-iot': 'IoT安全',
+        'vuln-tools': '漏洞工具',
+        'vuln-platform': '练习平台',
+        'vuln-writeup': '技术文章',
+        'prog-go': 'Go语言',
+        'prog-python': 'Python',
+        'prog-javascript': 'JavaScript',
+        'prog-java': 'Java',
+        'prog-cpp': 'C/C++',
+        'prog-rust': 'Rust',
+        'sec-scanner': '漏洞扫描',
+        'sec-analysis': '静态分析',
+        'sec-forensics': '取证工具',
+        'sec-network': '网络安全',
+        'devops-docker': '容器技术',
+        'devops-k8s': 'Kubernetes',
+        'devops-monitor': '监控运维',
+        'devops-cicd': 'CI/CD',
+        'res-books': '技术书籍',
+        'res-courses': '在线课程',
+        'res-blogs': '技术博客',
+        'res-papers': '学术论文'
+    };
+    
+    return titleMap[contentId] || '未知内容';
+}
+
+// 搜索功能
+function initializeSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+        searchInput.addEventListener('keydown', handleSearchKeydown);
     }
+}
 
-    .back-to-top {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        background: #00ADD8;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        font-size: 1.2rem;
-        cursor: pointer;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        z-index: 1000;
+function openSearch() {
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchInput = document.getElementById('searchInput');
+    
+    if (searchOverlay && searchInput) {
+        searchOverlay.classList.add('active');
+        searchInput.focus();
+        document.body.style.overflow = 'hidden';
     }
+}
 
-    .back-to-top.visible {
-        opacity: 1;
-        visibility: visible;
+function closeSearch() {
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchInput = document.getElementById('searchInput');
+    
+    if (searchOverlay) {
+        searchOverlay.classList.remove('active');
+        document.body.style.overflow = '';
     }
-
-    .back-to-top:hover {
-        background: #0088a8;
-        transform: translateY(-2px);
+    
+    if (searchInput) {
+        searchInput.value = '';
     }
+    
+    clearSearchResults();
+}
 
-    .theme-toggle {
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 50%;
-        transition: background-color 0.3s ease;
+function handleSearch(event) {
+    const query = event.target.value.trim().toLowerCase();
+    
+    if (query.length === 0) {
+        clearSearchResults();
+        return;
     }
-
-    .theme-toggle:hover {
-        background-color: rgba(0, 173, 216, 0.1);
+    
+    if (query.length < 2) {
+        return;
     }
+    
+    performSearch(query);
+}
 
-    .nav-link.active {
-        color: #00ADD8;
+function handleSearchKeydown(event) {
+    if (event.key === 'Escape') {
+        closeSearch();
     }
+}
 
-    .nav-link.active::after {
-        width: 100%;
+function performSearch(query) {
+    const results = [];
+    
+    // 搜索页面中的所有资源链接
+    document.querySelectorAll('.resource-list a').forEach(link => {
+        const title = link.textContent.toLowerCase();
+        const description = link.nextElementSibling ? 
+            link.nextElementSibling.textContent.toLowerCase() : '';
+        
+        if (title.includes(query) || description.includes(query)) {
+            results.push({
+                title: link.textContent.trim(),
+                description: description,
+                url: link.href,
+                section: getSectionFromLink(link)
+            });
+        }
+    });
+    
+    displaySearchResults(results, query);
+}
+
+function getSectionFromLink(link) {
+    const contentSection = link.closest('.content-section');
+    if (contentSection) {
+        const header = contentSection.querySelector('.content-header h2');
+        return header ? header.textContent : '未知分类';
     }
+    return '未知分类';
+}
 
-    .animate-in {
-        animation: fadeInUp 0.6s ease-out;
+function displaySearchResults(results, query) {
+    const searchResults = document.getElementById('searchResults');
+    
+    if (results.length === 0) {
+        searchResults.innerHTML = `
+            <div class="search-placeholder">
+                没有找到与 "${query}" 相关的资源
+            </div>
+        `;
+        return;
     }
+    
+    const resultsHTML = results.map(result => `
+        <div class="search-result-item" style="padding: 12px; border-bottom: 1px solid var(--border-color);">
+            <div style="margin-bottom: 4px;">
+                <a href="${result.url}" target="_blank" style="color: var(--primary-color); font-weight: 500; text-decoration: none;">
+                    ${highlightText(result.title, query)}
+                </a>
+                <span style="color: var(--text-muted); font-size: 12px; margin-left: 8px;">
+                    ${result.section}
+                </span>
+            </div>
+            <div style="color: var(--text-secondary); font-size: 13px;">
+                ${highlightText(result.description, query)}
+            </div>
+        </div>
+    `).join('');
+    
+    searchResults.innerHTML = resultsHTML;
+}
 
-    .dark-theme {
-        background-color: #1a1a1a;
-        color: #e0e0e0;
+function highlightText(text, query) {
+    if (!query) return text;
+    
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<mark style="background-color: var(--accent-color); color: white; padding: 1px 3px; border-radius: 2px;">$1</mark>');
+}
+
+function clearSearchResults() {
+    const searchResults = document.getElementById('searchResults');
+    if (searchResults) {
+        searchResults.innerHTML = '<div class="search-placeholder">输入关键词开始搜索</div>';
     }
+}
 
-    .dark-theme .header {
-        background: #2d2d2d;
+// 添加资源功能
+function showAddForm(category) {
+    const addOverlay = document.getElementById('addOverlay');
+    const categorySelect = document.getElementById('resourceCategory');
+    
+    if (addOverlay && categorySelect) {
+        // 设置分类选项
+        updateCategoryOptions(category);
+        
+        // 显示弹窗
+        addOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // 聚焦到第一个输入框
+        const firstInput = document.getElementById('resourceName');
+        if (firstInput) {
+            setTimeout(() => firstInput.focus(), 100);
+        }
     }
+}
 
-    .dark-theme .nav-link {
-        color: #e0e0e0;
+function closeAddForm() {
+    const addOverlay = document.getElementById('addOverlay');
+    const addForm = document.getElementById('addForm');
+    
+    if (addOverlay) {
+        addOverlay.classList.remove('active');
+        document.body.style.overflow = '';
     }
-
-    .dark-theme .search-input {
-        background: #2d2d2d;
-        color: #e0e0e0;
-        border-color: #404040;
+    
+    if (addForm) {
+        addForm.reset();
     }
+}
 
-    .dark-theme .search-results {
-        background: #2d2d2d;
-        border-color: #404040;
+function updateCategoryOptions(currentCategory) {
+    const categorySelect = document.getElementById('resourceCategory');
+    if (!categorySelect) return;
+    
+    const categories = {
+        'vuln-web': '基础漏洞类型,测试工具,学习资源',
+        'vuln-binary': '逆向工程工具,漏洞利用技术,学习资源',
+        'vuln-mobile': '移动安全工具,测试框架,学习资源',
+        'vuln-cloud': '云安全工具,配置检查,安全评估',
+        'vuln-iot': 'IoT工具,固件分析,协议测试',
+        'vuln-tools': '扫描工具,分析工具,利用工具',
+        'vuln-platform': '在线靶场,本地环境,竞赛平台',
+        'vuln-writeup': '技术文章,实战案例,研究报告'
+    };
+    
+    const currentCategories = categories[currentCategory] || '工具,资源,教程';
+    const categoryList = currentCategories.split(',');
+    
+    categorySelect.innerHTML = '<option value="">选择分类</option>';
+    categoryList.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.trim();
+        option.textContent = cat.trim();
+        categorySelect.appendChild(option);
+    });
+}
+
+// 资源管理
+function loadResources() {
+    // 从localStorage加载用户添加的资源
+    const savedResources = localStorage.getItem('userResources');
+    if (savedResources) {
+        try {
+            AppState.resources = JSON.parse(savedResources);
+            renderUserResources();
+        } catch (e) {
+            console.warn('Failed to load saved resources:', e);
+        }
     }
+}
 
-    .dark-theme .search-result-item a {
-        color: #e0e0e0;
+function saveResources() {
+    localStorage.setItem('userResources', JSON.stringify(AppState.resources));
+}
+
+function addResource(data) {
+    if (!AppState.resources[AppState.currentSubTab]) {
+        AppState.resources[AppState.currentSubTab] = {};
     }
-
-    .dark-theme .search-result-item a:hover {
-        background-color: #404040;
+    
+    if (!AppState.resources[AppState.currentSubTab][data.category]) {
+        AppState.resources[AppState.currentSubTab][data.category] = [];
     }
+    
+    AppState.resources[AppState.currentSubTab][data.category].push({
+        name: data.name,
+        url: data.url,
+        description: data.description,
+        addedAt: new Date().toISOString()
+    });
+    
+    saveResources();
+    renderUserResources();
+}
 
-    @media (max-width: 768px) {
-        .search-container {
-            margin: 0 1rem 2rem;
+function renderUserResources() {
+    // 这里可以实现动态渲染用户添加的资源
+    // 暂时先保存数据，后续可以扩展UI
+}
+
+// 事件监听器
+function initializeEventListeners() {
+    // 键盘快捷键
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K 打开搜索
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            openSearch();
         }
         
-        .back-to-top {
-            bottom: 15px;
-            right: 15px;
-            width: 45px;
-            height: 45px;
+        // ESC 关闭弹窗
+        if (e.key === 'Escape') {
+            closeSearch();
+            closeAddForm();
+        }
+    });
+    
+    // 点击遮罩关闭弹窗
+    document.getElementById('searchOverlay')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeSearch();
+        }
+    });
+    
+    document.getElementById('addOverlay')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAddForm();
+        }
+    });
+    
+    // 表单提交
+    document.getElementById('addForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        handleAddResourceSubmit();
+    });
+    
+    // 移动端响应
+    window.addEventListener('resize', handleResize);
+}
+
+function handleAddResourceSubmit() {
+    const form = document.getElementById('addForm');
+    const formData = new FormData(form);
+    
+    const resourceData = {
+        name: document.getElementById('resourceName').value.trim(),
+        url: document.getElementById('resourceUrl').value.trim(),
+        description: document.getElementById('resourceDescription').value.trim(),
+        category: document.getElementById('resourceCategory').value
+    };
+    
+    // 验证数据
+    if (!resourceData.name || !resourceData.url || !resourceData.description || !resourceData.category) {
+        alert('请填写所有必需的字段');
+        return;
+    }
+    
+    // 验证URL格式
+    try {
+        new URL(resourceData.url);
+    } catch {
+        alert('请输入有效的URL地址');
+        return;
+    }
+    
+    // 添加资源
+    addResource(resourceData);
+    
+    // 关闭表单
+    closeAddForm();
+    
+    // 显示成功消息
+    showSuccessMessage('资源添加成功！');
+    
+    // 如果当前是占位符页面，刷新内容
+    refreshCurrentContent();
+}
+
+function showSuccessMessage(message) {
+    // 创建临时成功消息
+    const successDiv = document.createElement('div');
+    successDiv.textContent = message;
+    successDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        z-index: 3000;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(successDiv);
+    
+    setTimeout(() => {
+        successDiv.remove();
+    }, 3000);
+}
+
+function refreshCurrentContent() {
+    // 如果当前页面是占位符，可以在这里刷新内容
+    const currentContent = document.querySelector('.content-section.active .placeholder');
+    if (currentContent) {
+        // 可以在这里添加刷新逻辑
+        console.log('Content refreshed for:', AppState.currentSubTab);
+    }
+}
+
+// 移动端支持
+function handleResize() {
+    if (window.innerWidth > 768) {
+        // 桌面端：确保侧边栏显示
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            sidebar.classList.remove('mobile-open');
         }
     }
-`;
+}
 
-// 将额外样式添加到页面
-const styleSheet = document.createElement('style');
-styleSheet.textContent = additionalStyles;
-document.head.appendChild(styleSheet);
+function toggleMobileSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('mobile-open');
+    }
+}
+
+function closeMobileSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        sidebar.classList.remove('mobile-open');
+    }
+}
+
+// 默认内容显示
+function showDefaultContent() {
+    // 默认显示漏洞挖掘 -> Web漏洞
+    const defaultTab = 'vuln';
+    const defaultContent = 'vuln-web';
+    
+    // 设置默认主标签
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[onclick="switchMainTab('${defaultTab}')"]`)?.classList.add('active');
+    
+    // 显示默认侧边栏
+    document.querySelectorAll('.sidebar-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    document.getElementById(`sidebar-${defaultTab}`)?.setAttribute('style', 'display: block');
+    
+    // 显示默认内容
+    showContent(defaultContent);
+    
+    // 设置默认侧边栏活动状态
+    document.querySelector(`a[href="#${defaultContent}"]`)?.classList.add('active');
+}
+
+// 导出到全局作用域
+window.switchMainTab = switchMainTab;
+window.showContent = showContent;
+window.toggleTheme = toggleTheme;
+window.openSearch = openSearch;
+window.closeSearch = closeSearch;
+window.showAddForm = showAddForm;
+window.closeAddForm = closeAddForm;

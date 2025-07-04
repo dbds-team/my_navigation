@@ -1,28 +1,36 @@
-# Gopher Navigator - Go语言学习导航站
+# 技术导航知识库 - Tech Navigation Hub
 
-一个专门为Go语言学习者打造的资源导航网站，收集整理了最全面、最实用的Go语言学习资源。
+一个专为技术人员打造的综合性资源导航系统，以漏洞挖掘为主，涵盖编程语言、安全工具、运维开发等多个技术领域。
 
 ## 🌟 特性
 
-- 📚 **丰富的资源分类** - 包含官方文档、教程学习、开发工具、社区论坛、开源项目等
-- 🔍 **智能搜索功能** - 快速查找所需资源，支持关键词搜索
-- 🎨 **现代化设计** - 参考topgoer.cn设计风格，美观易用
-- 📱 **响应式布局** - 完美适配各种设备
+- � **专业安全导向** - 以漏洞挖掘为核心，涵盖Web安全、二进制分析、移动安全等
+- � **知识库架构** - 顶部标签页 + 左侧导航栏 + 内容区域，类似专业文档站点
+- �🔍 **智能搜索功能** - Ctrl+K快速搜索，支持关键词高亮
+- ➕ **便捷资源管理** - 可视化添加新资源，支持本地存储
+- 🎨 **现代化设计** - 简洁美观的界面，减少滚动需求
+- 📱 **响应式布局** - 完美适配桌面和移动设备
 - 🌙 **主题切换** - 支持明暗主题切换
-- ⚡ **性能优化** - 纯静态网站，加载速度快
-- 🚀 **GitHub Pages支持** - 一键部署到GitHub Pages
+- ⚡ **高性能** - 纯静态网站，快速加载
+- 🚀 **易于部署** - 一键部署到GitHub Pages
 
 ## 📁 项目结构
 
 ```
-gopher-navigator/
-├── index.html          # 主页面
+tech-navigation-hub/
+├── index.html              # 主页面文件
 ├── css/
-│   └── style.css       # 样式文件
+│   └── style.css           # 样式文件
 ├── js/
-│   └── script.js       # 交互脚本
-├── README.md           # 项目说明
-└── docs/              # 文档目录
+│   └── script.js           # 交互脚本
+├── data/
+│   └── resources.js        # 资源数据配置
+├── .github/
+│   └── workflows/
+│       └── deploy.yml      # GitHub Actions部署
+├── README.md               # 项目说明
+├── USAGE_GUIDE.md          # 详细使用指南
+└── LICENSE                 # 许可证
 ```
 
 ## 🚀 快速开始
@@ -31,8 +39,8 @@ gopher-navigator/
 
 1. 克隆项目到本地：
 ```bash
-git clone https://github.com/yourusername/gopher-navigator.git
-cd gopher-navigator
+git clone https://github.com/yourusername/tech-navigation-hub.git
+cd tech-navigation-hub
 ```
 
 2. 使用任意HTTP服务器启动项目：
@@ -117,11 +125,14 @@ npx http-server
 
 ## 📊 资源统计
 
-本站目前收录了：
-- 100+ 学习资源
-- 20+ 资源分类
-- 50+ 开源项目
-- 30+ 实用工具
+本知识库目前收录了：
+- 🔐 漏洞挖掘：Web安全、二进制分析、移动安全、云安全等
+- 💻 编程语言：Go、Python、JavaScript、Java、C/C++、Rust等
+- 🛠️ 安全工具：扫描器、分析工具、取证工具、网络安全工具
+- 🚀 运维开发：Docker、Kubernetes、监控、CI/CD等
+- 📚 学习资源：技术书籍、在线课程、技术博客、学术论文
+
+支持用户自定义添加和管理资源！
 
 ## 🤝 贡献指南
 
@@ -129,10 +140,18 @@ npx http-server
 
 ### 添加新资源
 
+**方式一：通过界面添加（推荐）**
+1. 打开对应技术分类页面
+2. 点击"+ 添加资源"按钮
+3. 填写资源信息并提交
+
+**方式二：修改配置文件**
 1. Fork项目
-2. 编辑 `index.html` 文件
-3. 在相应的分类中添加新的资源链接
+2. 编辑 `data/resources.js` 文件
+3. 在相应分类中添加新资源
 4. 提交Pull Request
+
+详细说明请参考 [USAGE_GUIDE.md](USAGE_GUIDE.md)
 
 ### 报告问题
 

@@ -3,333 +3,338 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Go语言学习导航 - Gopher Navigator</title>
+    <title>技术导航知识库 - Tech Navigation Hub</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="https://golang.org/lib/godoc/images/go-logo-blue.svg" type="image/svg+xml">
+    <link rel="icon" href="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/technology/technology-original.svg" type="image/svg+xml">
 </head>
 <body>
-    <!-- 顶部导航 -->
+    <!-- 顶部标题栏 -->
     <header class="header">
-        <nav class="navbar">
-            <div class="nav-container">
-                <div class="nav-logo">
-                    <img src="https://golang.org/lib/godoc/images/go-logo-blue.svg" alt="Go Logo" class="logo">
-                    <span class="site-title">Gopher Navigator</span>
-                </div>
-                <ul class="nav-menu">
-                    <li class="nav-item"><a href="#home" class="nav-link">首页</a></li>
-                    <li class="nav-item"><a href="#docs" class="nav-link">文档</a></li>
-                    <li class="nav-item"><a href="#tutorials" class="nav-link">教程</a></li>
-                    <li class="nav-item"><a href="#tools" class="nav-link">工具</a></li>
-                    <li class="nav-item"><a href="#community" class="nav-link">社区</a></li>
-                    <li class="nav-item"><a href="#projects" class="nav-link">项目</a></li>
-                </ul>
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/technology/technology-original.svg" alt="Tech Hub" class="logo">
+                <h1 class="site-title">技术导航知识库</h1>
             </div>
-        </nav>
-    </header>
-
-    <!-- 主要内容 -->
-    <main class="main-content">
-        <!-- 首页横幅 -->
-        <section id="home" class="hero-section">
-            <div class="hero-content">
-                <h1 class="hero-title">Go语言学习导航站</h1>
-                <p class="hero-subtitle">收集整理最全面的Go语言学习资源，助力你的Gopher之路</p>
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <span class="stat-number">200+</span>
-                        <span class="stat-label">学习资源</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">50+</span>
-                        <span class="stat-label">开源项目</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">30+</span>
-                        <span class="stat-label">实用工具</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 快速导航 -->
-        <section class="quick-nav">
-            <div class="container">
-                <h2 class="section-title">快速导航</h2>
-                <div class="nav-grid">
-                    <div class="nav-card" onclick="scrollToSection('docs')">
-                        <div class="card-icon">📚</div>
-                        <h3>官方文档</h3>
-                        <p>Go官方文档、标准库、语言规范</p>
-                    </div>
-                    <div class="nav-card" onclick="scrollToSection('tutorials')">
-                        <div class="card-icon">🎓</div>
-                        <h3>教程学习</h3>
-                        <p>从入门到精通的学习教程</p>
-                    </div>
-                    <div class="nav-card" onclick="scrollToSection('tools')">
-                        <div class="card-icon">🛠️</div>
-                        <h3>开发工具</h3>
-                        <p>IDE、插件、在线工具等</p>
-                    </div>
-                    <div class="nav-card" onclick="scrollToSection('community')">
-                        <div class="card-icon">👥</div>
-                        <h3>社区论坛</h3>
-                        <p>技术交流、问答社区</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 官方文档 -->
-        <section id="docs" class="content-section">
-            <div class="container">
-                <h2 class="section-title">📚 官方文档</h2>
-                <div class="resource-grid">
-                    <div class="resource-category">
-                        <h3 class="category-title">核心文档</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://golang.org/" target="_blank">Go官方网站</a> - 官方主站</li>
-                            <li><a href="https://go-zh.org/" target="_blank">Go中文官网</a> - 中文官方站点</li>
-                            <li><a href="https://golang.org/doc/" target="_blank">Go Documentation</a> - 官方文档</li>
-                            <li><a href="https://pkg.go.dev/" target="_blank">Go Packages</a> - 包文档</li>
-                            <li><a href="https://golang.org/ref/spec" target="_blank">Language Specification</a> - 语言规范</li>
-                        </ul>
-                    </div>
-                    <div class="resource-category">
-                        <h3 class="category-title">标准库</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://pkg.go.dev/std" target="_blank">Standard Library</a> - 标准库文档</li>
-                            <li><a href="http://cngolib.com/" target="_blank">Go标准库中文</a> - 中文标准库</li>
-                            <li><a href="https://golang.org/pkg/" target="_blank">Package Documentation</a> - 包文档索引</li>
-                        </ul>
-                    </div>
-                    <div class="resource-category">
-                        <h3 class="category-title">学习指南</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://tour.golang.org/" target="_blank">A Tour of Go</a> - 官方入门教程</li>
-                            <li><a href="https://tour.go-zh.org/" target="_blank">Go指南中文版</a> - 中文版教程</li>
-                            <li><a href="https://golang.org/doc/effective_go.html" target="_blank">Effective Go</a> - 编写规范</li>
-                            <li><a href="https://golang.org/doc/code.html" target="_blank">How to Write Go Code</a> - 代码组织</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 教程学习 -->
-        <section id="tutorials" class="content-section">
-            <div class="container">
-                <h2 class="section-title">🎓 教程学习</h2>
-                <div class="resource-grid">
-                    <div class="resource-category">
-                        <h3 class="category-title">入门教程</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://www.topgoer.cn/" target="_blank">地鼠文档</a> - Go语言中文学习网站</li>
-                            <li><a href="https://studygolang.com/" target="_blank">Go语言中文网</a> - 国内知名Go社区</li>
-                            <li><a href="https://www.liwenzhou.com/posts/Go/golang-menu/" target="_blank">李文周的博客</a> - 系统性Go教程</li>
-                            <li><a href="https://github.com/unknwon/the-way-to-go_ZH_CN" target="_blank">Go入门指南</a> - 经典入门书籍</li>
-                            <li><a href="https://github.com/astaxie/build-web-application-with-golang" target="_blank">Go Web编程</a> - Web开发教程</li>
-                        </ul>
-                    </div>
-                    <div class="resource-category">
-                        <h3 class="category-title">进阶学习</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://draveness.me/golang/" target="_blank">Go语言设计与实现</a> - 深度剖析</li>
-                            <li><a href="https://golang.design/under-the-hood/" target="_blank">Go语言原本</a> - 源码解析</li>
-                            <li><a href="https://geektutu.com/" target="_blank">极客兔兔</a> - 7天系列教程</li>
-                            <li><a href="https://github.com/chai2010/advanced-go-programming-book" target="_blank">Go语言高级编程</a> - 进阶指南</li>
-                            <li><a href="https://golang3.eddycjy.com/" target="_blank">煎鱼的Go专栏</a> - 实战经验分享</li>
-                        </ul>
-                    </div>
-                    <div class="resource-category">
-                        <h3 class="category-title">视频教程</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://www.bilibili.com/video/BV1gf4y1r79E" target="_blank">Go语言基础教程</a> - B站入门视频</li>
-                            <li><a href="https://www.youtube.com/c/justforfunc" target="_blank">JustForFunc</a> - YouTube Go频道</li>
-                            <li><a href="https://talkgo.org/" target="_blank">Go夜读</a> - 技术分享</li>
-                            <li><a href="https://www.imooc.com/learn/345" target="_blank">Go语言第一课</a> - 慕课网</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 开发工具 -->
-        <section id="tools" class="content-section">
-            <div class="container">
-                <h2 class="section-title">🛠️ 开发工具</h2>
-                <div class="resource-grid">
-                    <div class="resource-category">
-                        <h3 class="category-title">IDE编辑器</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://www.jetbrains.com/go/" target="_blank">GoLand</a> - JetBrains专业IDE</li>
-                            <li><a href="https://code.visualstudio.com/" target="_blank">VS Code</a> - 微软开发的编辑器</li>
-                            <li><a href="http://liteide.org/" target="_blank">LiteIDE</a> - 轻量级Go IDE</li>
-                            <li><a href="https://atom.io/" target="_blank">Atom</a> - GitHub开发的编辑器</li>
-                            <li><a href="https://www.vim.org/" target="_blank">Vim</a> - 经典文本编辑器</li>
-                        </ul>
-                    </div>
-                    <div class="resource-category">
-                        <h3 class="category-title">在线工具</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://play.golang.org/" target="_blank">Go Playground</a> - 在线运行Go代码</li>
-                            <li><a href="https://mholt.github.io/json-to-go/" target="_blank">JSON-to-Go</a> - JSON转Go结构体</li>
-                            <li><a href="https://regex101.com/" target="_blank">Regex101</a> - 正则表达式测试</li>
-                            <li><a href="https://goreportcard.com/" target="_blank">Go Report Card</a> - 代码质量检测</li>
-                            <li><a href="https://gocover.io/" target="_blank">Gocover.io</a> - 测试覆盖率</li>
-                        </ul>
-                    </div>
-                    <div class="resource-category">
-                        <h3 class="category-title">开发工具</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://github.com/golangci/golangci-lint" target="_blank">golangci-lint</a> - 代码检查工具</li>
-                            <li><a href="https://github.com/cosmtrek/air" target="_blank">Air</a> - 热重载工具</li>
-                            <li><a href="https://github.com/swaggo/swag" target="_blank">Swag</a> - API文档生成</li>
-                            <li><a href="https://github.com/golang-migrate/migrate" target="_blank">migrate</a> - 数据库迁移工具</li>
-                            <li><a href="https://github.com/goreleaser/goreleaser" target="_blank">GoReleaser</a> - 发布工具</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 社区论坛 -->
-        <section id="community" class="content-section">
-            <div class="container">
-                <h2 class="section-title">👥 社区论坛</h2>
-                <div class="resource-grid">
-                    <div class="resource-category">
-                        <h3 class="category-title">中文社区</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://studygolang.com/" target="_blank">Go语言中文网</a> - 最大的中文Go社区</li>
-                            <li><a href="https://gocn.vip/" target="_blank">GoCN</a> - Go中国技术社区</li>
-                            <li><a href="https://www.golangtc.com/" target="_blank">Golang中国</a> - Go语言社区</li>
-                            <li><a href="https://learnku.com/go" target="_blank">LearnKu Go社区</a> - 学习交流平台</li>
-                            <li><a href="https://segmentfault.com/t/golang" target="_blank">SegmentFault Go</a> - 技术问答</li>
-                        </ul>
-                    </div>
-                    <div class="resource-category">
-                        <h3 class="category-title">国际社区</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://www.reddit.com/r/golang/" target="_blank">Reddit r/golang</a> - Go语言讨论区</li>
-                            <li><a href="https://stackoverflow.com/questions/tagged/go" target="_blank">Stack Overflow</a> - 技术问答</li>
-                            <li><a href="https://gophers.slack.com/" target="_blank">Gophers Slack</a> - Slack讨论组</li>
-                            <li><a href="https://forum.golangbridge.org/" target="_blank">Go Forum</a> - 官方论坛</li>
-                            <li><a href="https://groups.google.com/g/golang-nuts" target="_blank">golang-nuts</a> - 邮件列表</li>
-                        </ul>
-                    </div>
-                    <div class="resource-category">
-                        <h3 class="category-title">技术博客</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://blog.golang.org/" target="_blank">Go官方博客</a> - 官方技术博客</li>
-                            <li><a href="https://dave.cheney.net/" target="_blank">Dave Cheney</a> - Go核心开发者博客</li>
-                            <li><a href="https://rakyll.org/" target="_blank">JBD</a> - Google Go团队成员</li>
-                            <li><a href="https://www.ardanlabs.com/blog/" target="_blank">Ardan Labs</a> - Go培训机构博客</li>
-                            <li><a href="https://golangweekly.com/" target="_blank">Golang Weekly</a> - 周刊</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 开源项目 -->
-        <section id="projects" class="content-section">
-            <div class="container">
-                <h2 class="section-title">🚀 优秀项目</h2>
-                <div class="resource-grid">
-                    <div class="resource-category">
-                        <h3 class="category-title">Web框架</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://github.com/gin-gonic/gin" target="_blank">Gin</a> - 高性能HTTP Web框架</li>
-                            <li><a href="https://github.com/beego/beego" target="_blank">Beego</a> - 企业级Web框架</li>
-                            <li><a href="https://github.com/labstack/echo" target="_blank">Echo</a> - 高性能极简框架</li>
-                            <li><a href="https://github.com/gorilla/mux" target="_blank">Gorilla Mux</a> - 强大的路由器</li>
-                            <li><a href="https://github.com/go-chi/chi" target="_blank">Chi</a> - 轻量级路由器</li>
-                        </ul>
-                    </div>
-                    <div class="resource-category">
-                        <h3 class="category-title">数据库ORM</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://github.com/go-gorm/gorm" target="_blank">GORM</a> - 功能丰富的ORM库</li>
-                            <li><a href="https://github.com/go-xorm/xorm" target="_blank">XORM</a> - 简单强大的ORM</li>
-                            <li><a href="https://github.com/jmoiron/sqlx" target="_blank">SQLx</a> - 扩展database/sql</li>
-                            <li><a href="https://github.com/upper/db" target="_blank">Upper.io</a> - 数据访问层</li>
-                            <li><a href="https://github.com/volatiletech/sqlboiler" target="_blank">SQLBoiler</a> - 代码生成ORM</li>
-                        </ul>
-                    </div>
-                    <div class="resource-category">
-                        <h3 class="category-title">微服务框架</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://github.com/go-kratos/kratos" target="_blank">Kratos</a> - B站开源微服务框架</li>
-                            <li><a href="https://github.com/zeromicro/go-zero" target="_blank">go-zero</a> - 云原生微服务框架</li>
-                            <li><a href="https://github.com/go-kit/kit" target="_blank">Go Kit</a> - 微服务工具包</li>
-                            <li><a href="https://github.com/micro/micro" target="_blank">Micro</a> - 微服务开发框架</li>
-                            <li><a href="https://github.com/go-chassis/go-chassis" target="_blank">Go Chassis</a> - 华为微服务框架</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 面试题库 -->
-        <section class="content-section">
-            <div class="container">
-                <h2 class="section-title">📝 面试题库</h2>
-                <div class="resource-grid">
-                    <div class="resource-category">
-                        <h3 class="category-title">面试准备</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://www.topgoer.cn/docs/gomianshiti/gomianshiti-1cpgf5f10q2q0" target="_blank">Go面试题集</a> - 地鼠文档面试题</li>
-                            <li><a href="https://github.com/qcrao/Go-Questions" target="_blank">Go Questions</a> - Go语言知识图谱</li>
-                            <li><a href="https://github.com/lifei6671/interview-go" target="_blank">Interview Go</a> - Go面试题集合</li>
-                            <li><a href="https://golang.design/go-questions/" target="_blank">Go程序员面试笔试宝典</a> - 面试宝典</li>
-                        </ul>
-                    </div>
-                    <div class="resource-category">
-                        <h3 class="category-title">学习路线</h3>
-                        <ul class="resource-list">
-                            <li><a href="https://github.com/yangwenmai/learning-golang" target="_blank">Learning Golang</a> - 学习资源整理</li>
-                            <li><a href="https://github.com/yongxinz/gopher" target="_blank">Gopher学习路线</a> - 完整学习路径</li>
-                            <li><a href="https://roadmap.sh/golang" target="_blank">Go Developer Roadmap</a> - 开发者路线图</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- 页脚 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>关于本站</h3>
-                    <p>Gopher Navigator 致力于收集整理最全面、最实用的Go语言学习资源，助力开发者更好地学习和使用Go语言。</p>
-                </div>
-                <div class="footer-section">
-                    <h3>快速链接</h3>
-                    <ul>
-                        <li><a href="https://golang.org/">Go官网</a></li>
-                        <li><a href="https://pkg.go.dev/">包文档</a></li>
-                        <li><a href="https://play.golang.org/">在线运行</a></li>
-                        <li><a href="https://blog.golang.org/">官方博客</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>联系我们</h3>
-                    <p>如果您有好的Go语言资源推荐，欢迎通过GitHub Issues提交。</p>
-                    <a href="https://github.com/yourusername/gopher-navigator" target="_blank" class="github-link">
-                        GitHub仓库
-                    </a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 Gopher Navigator. 本站收录的资源均来自互联网，版权归原作者所有。</p>
+            <div class="header-tools">
+                <button class="search-btn" onclick="openSearch()">
+                    <span class="search-icon">🔍</span>
+                    <span class="search-text">搜索 (Ctrl+K)</span>
+                </button>
+                <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
             </div>
         </div>
-    </footer>
+    </header>
 
+    <!-- 主标签页导航 -->
+    <nav class="main-tabs">
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchMainTab('vuln')">漏洞挖掘</button>
+            <button class="tab-btn" onclick="switchMainTab('programming')">编程语言</button>
+            <button class="tab-btn" onclick="switchMainTab('security')">安全工具</button>
+            <button class="tab-btn" onclick="switchMainTab('devops')">运维开发</button>
+            <button class="tab-btn" onclick="switchMainTab('resources')">学习资源</button>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="main-container">
+        <!-- 左侧导航栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <!-- 漏洞挖掘导航 -->
+                <div class="sidebar-section" id="sidebar-vuln">
+                    <div class="section-header">
+                        <h3>漏洞挖掘</h3>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <ul class="nav-list">
+                            <li><a href="#vuln-web" onclick="showContent('vuln-web')">Web漏洞</a></li>
+                            <li><a href="#vuln-binary" onclick="showContent('vuln-binary')">二进制漏洞</a></li>
+                            <li><a href="#vuln-mobile" onclick="showContent('vuln-mobile')">移动安全</a></li>
+                            <li><a href="#vuln-cloud" onclick="showContent('vuln-cloud')">云安全</a></li>
+                            <li><a href="#vuln-iot" onclick="showContent('vuln-iot')">IoT安全</a></li>
+                            <li><a href="#vuln-tools" onclick="showContent('vuln-tools')">漏洞工具</a></li>
+                            <li><a href="#vuln-platform" onclick="showContent('vuln-platform')">练习平台</a></li>
+                            <li><a href="#vuln-writeup" onclick="showContent('vuln-writeup')">技术文章</a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <!-- 编程语言导航 -->
+                <div class="sidebar-section" id="sidebar-programming" style="display: none;">
+                    <div class="section-header">
+                        <h3>编程语言</h3>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <ul class="nav-list">
+                            <li><a href="#prog-go" onclick="showContent('prog-go')">Go语言</a></li>
+                            <li><a href="#prog-python" onclick="showContent('prog-python')">Python</a></li>
+                            <li><a href="#prog-javascript" onclick="showContent('prog-javascript')">JavaScript</a></li>
+                            <li><a href="#prog-java" onclick="showContent('prog-java')">Java</a></li>
+                            <li><a href="#prog-cpp" onclick="showContent('prog-cpp')">C/C++</a></li>
+                            <li><a href="#prog-rust" onclick="showContent('prog-rust')">Rust</a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <!-- 安全工具导航 -->
+                <div class="sidebar-section" id="sidebar-security" style="display: none;">
+                    <div class="section-header">
+                        <h3>安全工具</h3>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <ul class="nav-list">
+                            <li><a href="#sec-scanner" onclick="showContent('sec-scanner')">漏洞扫描</a></li>
+                            <li><a href="#sec-analysis" onclick="showContent('sec-analysis')">静态分析</a></li>
+                            <li><a href="#sec-forensics" onclick="showContent('sec-forensics')">取证工具</a></li>
+                            <li><a href="#sec-network" onclick="showContent('sec-network')">网络安全</a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <!-- 运维开发导航 -->
+                <div class="sidebar-section" id="sidebar-devops" style="display: none;">
+                    <div class="section-header">
+                        <h3>运维开发</h3>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <ul class="nav-list">
+                            <li><a href="#devops-docker" onclick="showContent('devops-docker')">容器技术</a></li>
+                            <li><a href="#devops-k8s" onclick="showContent('devops-k8s')">Kubernetes</a></li>
+                            <li><a href="#devops-monitor" onclick="showContent('devops-monitor')">监控运维</a></li>
+                            <li><a href="#devops-cicd" onclick="showContent('devops-cicd')">CI/CD</a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <!-- 学习资源导航 -->
+                <div class="sidebar-section" id="sidebar-resources" style="display: none;">
+                    <div class="section-header">
+                        <h3>学习资源</h3>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <ul class="nav-list">
+                            <li><a href="#res-books" onclick="showContent('res-books')">技术书籍</a></li>
+                            <li><a href="#res-courses" onclick="showContent('res-courses')">在线课程</a></li>
+                            <li><a href="#res-blogs" onclick="showContent('res-blogs')">技术博客</a></li>
+                            <li><a href="#res-papers" onclick="showContent('res-papers')">学术论文</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧内容区域 -->
+        <main class="content-area">
+            <!-- Web漏洞内容 -->
+            <div class="content-section active" id="content-vuln-web">
+                <div class="content-header">
+                    <h2>Web漏洞挖掘</h2>
+                    <button class="add-btn" onclick="showAddForm('vuln-web')">+ 添加资源</button>
+                </div>
+                <div class="content-grid">
+                    <div class="category-section">
+                        <h3>🔍 基础漏洞类型</h3>
+                        <ul class="resource-list">
+                            <li>
+                                <a href="https://owasp.org/www-project-top-ten/" target="_blank">
+                                    <strong>OWASP Top 10</strong>
+                                </a>
+                                <span class="description">Web应用安全风险排行榜</span>
+                            </li>
+                            <li>
+                                <a href="https://portswigger.net/web-security" target="_blank">
+                                    <strong>PortSwigger Web Security Academy</strong>
+                                </a>
+                                <span class="description">免费Web安全学习平台</span>
+                            </li>
+                            <li>
+                                <a href="https://cheatsheetseries.owasp.org/" target="_blank">
+                                    <strong>OWASP Cheat Sheet Series</strong>
+                                </a>
+                                <span class="description">安全开发备忘录</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="category-section">
+                        <h3>🛠️ 测试工具</h3>
+                        <ul class="resource-list">
+                            <li>
+                                <a href="https://github.com/sqlmapproject/sqlmap" target="_blank">
+                                    <strong>SQLMap</strong>
+                                </a>
+                                <span class="description">自动化SQL注入检测工具</span>
+                            </li>
+                            <li>
+                                <a href="https://portswigger.net/burp" target="_blank">
+                                    <strong>Burp Suite</strong>
+                                </a>
+                                <span class="description">Web应用安全测试平台</span>
+                            </li>
+                            <li>
+                                <a href="https://github.com/zaproxy/zaproxy" target="_blank">
+                                    <strong>OWASP ZAP</strong>
+                                </a>
+                                <span class="description">开源Web应用安全扫描器</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="category-section">
+                        <h3>📖 学习资源</h3>
+                        <ul class="resource-list">
+                            <li>
+                                <a href="https://github.com/qazbnm456/awesome-web-security" target="_blank">
+                                    <strong>Awesome Web Security</strong>
+                                </a>
+                                <span class="description">Web安全资源大全</span>
+                            </li>
+                            <li>
+                                <a href="https://pentesterlab.com/" target="_blank">
+                                    <strong>PentesterLab</strong>
+                                </a>
+                                <span class="description">Web渗透测试练习平台</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 二进制漏洞内容 -->
+            <div class="content-section" id="content-vuln-binary" style="display: none;">
+                <div class="content-header">
+                    <h2>二进制漏洞分析</h2>
+                    <button class="add-btn" onclick="showAddForm('vuln-binary')">+ 添加资源</button>
+                </div>
+                <div class="content-grid">
+                    <div class="category-section">
+                        <h3>🔧 逆向工程工具</h3>
+                        <ul class="resource-list">
+                            <li>
+                                <a href="https://github.com/radareorg/radare2" target="_blank">
+                                    <strong>Radare2</strong>
+                                </a>
+                                <span class="description">开源逆向工程框架</span>
+                            </li>
+                            <li>
+                                <a href="https://ghidra-sre.org/" target="_blank">
+                                    <strong>Ghidra</strong>
+                                </a>
+                                <span class="description">NSA开源逆向工程工具</span>
+                            </li>
+                            <li>
+                                <a href="https://www.hex-rays.com/products/ida/" target="_blank">
+                                    <strong>IDA Pro</strong>
+                                </a>
+                                <span class="description">专业逆向分析工具</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="category-section">
+                        <h3>🎯 漏洞利用技术</h3>
+                        <ul class="resource-list">
+                            <li>
+                                <a href="https://github.com/Gallopsled/pwntools" target="_blank">
+                                    <strong>Pwntools</strong>
+                                </a>
+                                <span class="description">CTF框架和漏洞利用开发库</span>
+                            </li>
+                            <li>
+                                <a href="https://github.com/longld/peda" target="_blank">
+                                    <strong>PEDA</strong>
+                                </a>
+                                <span class="description">Python Exploit Development Assistance</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 更多内容区域占位符 -->
+            <div class="content-section" id="content-vuln-mobile" style="display: none;">
+                <div class="content-header">
+                    <h2>移动应用安全</h2>
+                    <button class="add-btn" onclick="showAddForm('vuln-mobile')">+ 添加资源</button>
+                </div>
+                <div class="content-grid">
+                    <div class="category-section">
+                        <h3>📱 移动安全工具</h3>
+                        <ul class="resource-list">
+                            <li>
+                                <a href="https://github.com/MobSF/Mobile-Security-Framework-MobSF" target="_blank">
+                                    <strong>MobSF</strong>
+                                </a>
+                                <span class="description">移动安全框架</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他内容区域暂时为空，等待扩展 -->
+            <div class="content-section" id="content-vuln-cloud" style="display: none;">
+                <div class="content-header">
+                    <h2>云安全</h2>
+                    <button class="add-btn" onclick="showAddForm('vuln-cloud')">+ 添加资源</button>
+                </div>
+                <div class="placeholder">
+                    <p>🚧 此模块正在完善中，敬请期待...</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 搜索弹窗 -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-container">
+            <div class="search-header">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索技术资源...">
+                <button class="search-close" onclick="closeSearch()">×</button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="search-placeholder">输入关键词开始搜索</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加资源弹窗 -->
+    <div class="add-overlay" id="addOverlay">
+        <div class="add-container">
+            <div class="add-header">
+                <h3>添加新资源</h3>
+                <button class="add-close" onclick="closeAddForm()">×</button>
+            </div>
+            <form class="add-form" id="addForm">
+                <div class="form-group">
+                    <label for="resourceName">资源名称</label>
+                    <input type="text" id="resourceName" required>
+                </div>
+                <div class="form-group">
+                    <label for="resourceUrl">链接地址</label>
+                    <input type="url" id="resourceUrl" required>
+                </div>
+                <div class="form-group">
+                    <label for="resourceDescription">描述</label>
+                    <input type="text" id="resourceDescription" required>
+                </div>
+                <div class="form-group">
+                    <label for="resourceCategory">分类</label>
+                    <select id="resourceCategory">
+                        <option value="">选择分类</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeAddForm()">取消</button>
+                    <button type="submit">添加资源</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="data/resources.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>
