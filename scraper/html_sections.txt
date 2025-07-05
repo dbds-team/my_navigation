@@ -1,0 +1,89 @@
+                    <div class="resource-category">
+                        <h3 class="category-title">官方文档</h3>
+                        <ul class="resource-list">
+                            <li><a href="https://golang.org/" target="_blank">Go官方网站</a> - Go语言官方网站</li>
+                            <li><a href="https://go-zh.org/" target="_blank">Go中文官网</a> - Go语言中文官方站点</li>
+                            <li><a href="https://golang.org/doc/" target="_blank">Go文档</a> - Go语言官方文档</li>
+                            <li><a href="https://pkg.go.dev/" target="_blank">Go包文档</a> - Go包和模块文档</li>
+                            <li><a href="https://golang.org/ref/spec" target="_blank">Go语言规范</a> - Go语言规范文档</li>
+                        </ul>
+                    </div>
+                    <div class="resource-category">
+                        <h3 class="category-title">入门教程</h3>
+                        <ul class="resource-list">
+                            <li><a href="https://www.topgoer.cn/" target="_blank">地鼠文档</a> - Go语言中文学习网站</li>
+                            <li><a href="https://studygolang.com/" target="_blank">Go语言中文网</a> - 国内知名Go社区</li>
+                            <li><a href="https://www.liwenzhou.com/posts/Go/golang-menu/" target="_blank">李文周的博客</a> - 系统性Go教程</li>
+                            <li><a href="https://github.com/unknwon/the-way-to-go_ZH_CN" target="_blank">Go入门指南</a> - 经典入门书籍</li>
+                            <li><a href="https://github.com/astaxie/build-web-application-with-golang" target="_blank">Go Web编程</a> - Web开发教程</li>
+                        </ul>
+                    </div>
+                    <div class="resource-category">
+                        <h3 class="category-title">进阶学习</h3>
+                        <ul class="resource-list">
+                            <li><a href="https://draveness.me/golang/" target="_blank">Go语言设计与实现</a> - 深度剖析Go语言</li>
+                            <li><a href="https://golang.design/under-the-hood/" target="_blank">Go语言原本</a> - Go语言源码解析</li>
+                            <li><a href="https://geektutu.com/" target="_blank">极客兔兔</a> - 7天系列教程</li>
+                            <li><a href="https://github.com/chai2010/advanced-go-programming-book" target="_blank">Go语言高级编程</a> - Go语言进阶指南</li>
+                            <li><a href="https://golang3.eddycjy.com/" target="_blank">煎鱼的Go专栏</a> - 实战经验分享</li>
+                        </ul>
+                    </div>
+                    <div class="resource-category">
+                        <h3 class="category-title">Web框架</h3>
+                        <ul class="resource-list">
+                            <li><a href="https://github.com/gin-gonic/gin" target="_blank">Gin</a> - 高性能HTTP Web框架</li>
+                            <li><a href="https://github.com/beego/beego" target="_blank">Beego</a> - 企业级Web框架</li>
+                            <li><a href="https://github.com/labstack/echo" target="_blank">Echo</a> - 高性能极简框架</li>
+                            <li><a href="https://github.com/gorilla/mux" target="_blank">Gorilla Mux</a> - 强大的路由器</li>
+                            <li><a href="https://github.com/go-chi/chi" target="_blank">Chi</a> - 轻量级路由器</li>
+                        </ul>
+                    </div>
+                    <div class="resource-category">
+                        <h3 class="category-title">数据库ORM</h3>
+                        <ul class="resource-list">
+                            <li><a href="https://github.com/go-gorm/gorm" target="_blank">GORM</a> - 功能丰富的ORM库</li>
+                            <li><a href="https://github.com/go-xorm/xorm" target="_blank">XORM</a> - 简单强大的ORM</li>
+                            <li><a href="https://github.com/jmoiron/sqlx" target="_blank">SQLx</a> - 扩展database/sql</li>
+                            <li><a href="https://github.com/upper/db" target="_blank">Upper.io</a> - 数据访问层</li>
+                            <li><a href="https://github.com/volatiletech/sqlboiler" target="_blank">SQLBoiler</a> - 代码生成ORM</li>
+                        </ul>
+                    </div>
+                    <div class="resource-category">
+                        <h3 class="category-title">微服务框架</h3>
+                        <ul class="resource-list">
+                            <li><a href="https://github.com/go-kratos/kratos" target="_blank">Kratos</a> - B站开源微服务框架</li>
+                            <li><a href="https://github.com/zeromicro/go-zero" target="_blank">go-zero</a> - 云原生微服务框架</li>
+                            <li><a href="https://github.com/go-kit/kit" target="_blank">Go Kit</a> - 微服务工具包</li>
+                            <li><a href="https://github.com/micro/micro" target="_blank">Micro</a> - 微服务开发框架</li>
+                            <li><a href="https://github.com/go-chassis/go-chassis" target="_blank">Go Chassis</a> - 华为微服务框架</li>
+                        </ul>
+                    </div>
+                    <div class="resource-category">
+                        <h3 class="category-title">开发工具</h3>
+                        <ul class="resource-list">
+                            <li><a href="https://www.jetbrains.com/go/" target="_blank">GoLand</a> - JetBrains专业IDE</li>
+                            <li><a href="https://code.visualstudio.com/" target="_blank">VS Code</a> - 微软开发的编辑器</li>
+                            <li><a href="http://liteide.org/" target="_blank">LiteIDE</a> - 轻量级Go IDE</li>
+                            <li><a href="https://play.golang.org/" target="_blank">Go Playground</a> - 在线运行Go代码</li>
+                            <li><a href="https://mholt.github.io/json-to-go/" target="_blank">JSON-to-Go</a> - JSON转Go结构体</li>
+                        </ul>
+                    </div>
+                    <div class="resource-category">
+                        <h3 class="category-title">社区论坛</h3>
+                        <ul class="resource-list">
+                            <li><a href="https://studygolang.com/" target="_blank">Go语言中文网</a> - 最大的中文Go社区</li>
+                            <li><a href="https://gocn.vip/" target="_blank">GoCN</a> - Go中国技术社区</li>
+                            <li><a href="https://www.golangtc.com/" target="_blank">Golang中国</a> - Go语言社区</li>
+                            <li><a href="https://www.reddit.com/r/golang/" target="_blank">Reddit r/golang</a> - Go语言讨论区</li>
+                            <li><a href="https://stackoverflow.com/questions/tagged/go" target="_blank">Stack Overflow</a> - 技术问答</li>
+                        </ul>
+                    </div>
+                    <div class="resource-category">
+                        <h3 class="category-title">面试准备</h3>
+                        <ul class="resource-list">
+                            <li><a href="https://www.topgoer.cn/docs/gomianshiti/gomianshiti-1cpgf5f10q2q0" target="_blank">Go面试题集</a> - 地鼠文档面试题</li>
+                            <li><a href="https://github.com/qcrao/Go-Questions" target="_blank">Go Questions</a> - Go语言知识图谱</li>
+                            <li><a href="https://github.com/lifei6671/interview-go" target="_blank">Interview Go</a> - Go面试题集合</li>
+                            <li><a href="https://golang.design/go-questions/" target="_blank">Go程序员面试笔试宝典</a> - 面试宝典</li>
+                        </ul>
+                    </div>
