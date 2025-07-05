@@ -5,22 +5,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 初始化页面
 function initializePage() {
+    // 更新页面标题
+    document.title = config.app.title;
+    const titleElement = document.querySelector('.nav-title h1');
+    if (titleElement) {
+        titleElement.textContent = config.app.title;
+    }
+
     loadTabs();
-    loadSidebar(config.tabs[0].id);
+    if (config.tabs && config.tabs.length > 0) {
+        loadSidebar(config.tabs[0].id);
+    }
     initializeEventListeners();
 }
 
 // 加载标签页
 function loadTabs() {
     const tabsContainer = document.querySelector('.nav-tabs');
+    if (!tabsContainer) return;
+
+    tabsContainer.innerHTML = ''; // 清空现有内容
+
+    if (!config.tabs || config.tabs.length === 0) return;
+
     config.tabs.forEach(tab => {
         const tabButton = document.createElement('button');
         tabButton.className = 'tab-item';
         tabButton.setAttribute('data-tab', tab.id);
         tabButton.innerHTML = `<i class="${tab.icon}"></i>${tab.name}`;
+        tabButton.title = tab.description; // 添加工具提示
         tabsContainer.appendChild(tabButton);
     });
-    
+
     // 激活第一个标签页
     const firstTab = document.querySelector('.tab-item');
     if (firstTab) {
@@ -48,23 +64,25 @@ function loadSidebar(tabId) {
     const sidebar = document.querySelector('.category-nav');
     sidebar.innerHTML = '';
 
-    const currentTab = config.tabs.find(tab => tab.id === tabId);
-    if (!currentTab) return;
+    // 从新的配置结构中获取内容
+    const tabContent = config.content[tabId];
+    if (!tabContent || !tabContent.categories) return;
 
-    currentTab.categories.forEach(category => {
+    tabContent.categories.forEach(category => {
         const categoryGroup = document.createElement('div');
         categoryGroup.className = 'nav-group';
-        
+
         const header = document.createElement('div');
         header.className = 'nav-group-header';
         header.innerHTML = `
+            <i class="${category.icon}"></i>
             <span>${category.name}</span>
             <i class="fas fa-chevron-down"></i>
         `;
-        
+
         const content = document.createElement('div');
         content.className = 'nav-group-content';
-        
+
         category.subcategories.forEach(subcategory => {
             const subgroup = document.createElement('div');
             subgroup.className = 'nav-subgroup';
@@ -73,18 +91,18 @@ function loadSidebar(tabId) {
                     <span>${subcategory.name}</span>
                 </div>
             `;
-            
+
             subgroup.addEventListener('click', () => {
                 document.querySelectorAll('.nav-subgroup').forEach(sg => {
                     sg.classList.remove('active');
                 });
                 subgroup.classList.add('active');
-                showContent(category.name, subcategory);
+                showContent(tabId, category, subcategory);
             });
-            
+
             content.appendChild(subgroup);
         });
-        
+
         categoryGroup.appendChild(header);
         categoryGroup.appendChild(content);
         sidebar.appendChild(categoryGroup);
@@ -102,42 +120,91 @@ function loadSidebar(tabId) {
     }
 }
 
-// 显示内容
-function showContent(categoryName, item) {
+// 显示内容 - 支持不同的内容类型
+function showContent(tabId, category, subcategory) {
     const content = document.querySelector('.content');
-    content.innerHTML = `
-        <div class="content-header">
-            <h2>${item.name}</h2>
-            <p>${categoryName} > ${item.name}</p>
-        </div>
-        <table class="tools-table">
-            <thead>
-                <tr>
-                    <th>名称</th>
-                    <th>描述</th>
-                    <th>链接</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${item.tools.map(tool => `
-                    <tr>
-                        <td>${tool.name}</td>
-                        <td>${tool.description}</td>
-                        <td>
-                            ${tool.links.map(link => `
-                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">
-                                    ${link.text}
-                                </a>
-                            `).join(' | ')}
-                        </td>
-                    </tr>
+
+    // 构建面包屑导航
+    const breadcrumb = `${category.name} > ${subcategory.name}`;
+
+    if (subcategory.contentType === 'table') {
+        // 表格类型内容 - 用于工具链接等
+        content.innerHTML = `
+            <div class="content-header">
+                <h2>${subcategory.name}</h2>
+                <p class="breadcrumb">${breadcrumb}</p>
+
+            </div>
+            <div class="table-container">
+                <table class="tools-table">
+                    <thead>
+                        <tr>
+                            <th>名称</th>
+                            <th>描述</th>
+                            <th>标签</th>
+                            <th>链接</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${subcategory.data.map(item => `
+                            <tr>
+                                <td class="tool-name">${item.name}</td>
+                                <td class="tool-description">${item.description}</td>
+                                <td class="tool-tags">
+                                    ${item.tags ? item.tags.map(tag => `<span class="tool-tag">${tag}</span>`).join('') : ''}
+                                </td>
+                                <td class="tool-links">
+                                    ${item.links.map(link => `
+                                        <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="tool-link">
+                                            <i class="fas fa-external-link-alt"></i>
+                                            ${link.text}
+                                        </a>
+                                    `).join('')}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } else if (subcategory.contentType === 'text') {
+        // 文本类型内容 - 用于详细说明等
+        const data = subcategory.data;
+        content.innerHTML = `
+            <div class="content-header">
+                <h2>${data.title}</h2>
+                <p class="breadcrumb">${breadcrumb}</p>
+                <p class="description">${data.description}</p>
+            </div>
+            <div class="text-content">
+                ${data.sections.map(section => `
+                    <div class="content-section">
+                        <h3>${section.title}</h3>
+                        <ul class="content-list">
+                            ${section.content.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </div>
                 `).join('')}
-            </tbody>
-        </table>
-    `;
+
+                ${data.resources && data.resources.length > 0 ? `
+                    <div class="resources-section">
+                        <h3>相关资源</h3>
+                        <div class="resource-links">
+                            ${data.resources.map(resource => `
+                                <a href="${resource.url}" target="_blank" rel="noopener noreferrer" class="resource-link">
+                                    <i class="fas fa-link"></i>
+                                    ${resource.title}
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
 }
 
-// 搜索工具
+// 搜索工具 - 更新以支持新的数据结构
 function searchTools(keyword) {
     if (!keyword.trim()) {
         return;
@@ -146,22 +213,48 @@ function searchTools(keyword) {
     const searchResults = [];
     keyword = keyword.toLowerCase();
 
+    // 遍历所有标签页的内容
     config.tabs.forEach(tab => {
-        tab.categories.forEach(category => {
+        const tabContent = config.content[tab.id];
+        if (!tabContent || !tabContent.categories) return;
+
+        tabContent.categories.forEach(category => {
             category.subcategories.forEach(subcategory => {
-                subcategory.tools.forEach(tool => {
+                if (subcategory.contentType === 'table' && subcategory.data) {
+                    subcategory.data.forEach(item => {
+                        if (
+                            item.name.toLowerCase().includes(keyword) ||
+                            item.description.toLowerCase().includes(keyword) ||
+                            (item.tags && item.tags.some(tag => tag.toLowerCase().includes(keyword)))
+                        ) {
+                            searchResults.push({
+                                item,
+                                category: category.name,
+                                subcategory: subcategory.name,
+                                tab: tab.name,
+                                contentType: subcategory.contentType
+                            });
+                        }
+                    });
+                } else if (subcategory.contentType === 'text' && subcategory.data) {
+                    const data = subcategory.data;
                     if (
-                        tool.name.toLowerCase().includes(keyword) ||
-                        tool.description.toLowerCase().includes(keyword)
+                        data.title.toLowerCase().includes(keyword) ||
+                        data.description.toLowerCase().includes(keyword) ||
+                        data.sections.some(section =>
+                            section.title.toLowerCase().includes(keyword) ||
+                            section.content.some(content => content.toLowerCase().includes(keyword))
+                        )
                     ) {
                         searchResults.push({
-                            tool,
+                            item: data,
                             category: category.name,
                             subcategory: subcategory.name,
-                            tab: tab.name
+                            tab: tab.name,
+                            contentType: subcategory.contentType
                         });
                     }
-                });
+                }
             });
         });
     });
@@ -170,36 +263,44 @@ function searchTools(keyword) {
     content.innerHTML = `
         <div class="content-header">
             <h2>搜索结果</h2>
-            <p>关键词: ${keyword}</p>
+            <p class="search-info">关键词: "${keyword}" | 找到 ${searchResults.length} 个结果</p>
         </div>
         ${searchResults.length ? `
-            <table class="tools-table">
-                <thead>
-                    <tr>
-                        <th>名称</th>
-                        <th>描述</th>
-                        <th>分类</th>
-                        <th>链接</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${searchResults.map(result => `
-                        <tr>
-                            <td>${result.tool.name}</td>
-                            <td>${result.tool.description}</td>
-                            <td>${result.tab} > ${result.category} > ${result.subcategory}</td>
-                            <td>
-                                ${result.tool.links.map(link => `
-                                    <a href="${link.url}" target="_blank" rel="noopener noreferrer">
-                                        ${link.text}
-                                    </a>
-                                `).join(' | ')}
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        ` : '<p>未找到相关工具</p>'}
+            <div class="search-results">
+                ${searchResults.map(result => {
+                    if (result.contentType === 'table') {
+                        return `
+                            <div class="search-result-item">
+                                <h3>${result.item.name}</h3>
+                                <p class="result-description">${result.item.description}</p>
+                                <p class="result-path">${result.tab} > ${result.category} > ${result.subcategory}</p>
+                                <div class="result-links">
+                                    ${result.item.links.map(link => `
+                                        <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="tool-link">
+                                            <i class="fas fa-external-link-alt"></i>
+                                            ${link.text}
+                                        </a>
+                                    `).join('')}
+                                </div>
+                                ${result.item.tags ? `
+                                    <div class="result-tags">
+                                        ${result.item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    } else {
+                        return `
+                            <div class="search-result-item">
+                                <h3>${result.item.title}</h3>
+                                <p class="result-description">${result.item.description}</p>
+                                <p class="result-path">${result.tab} > ${result.category} > ${result.subcategory}</p>
+                            </div>
+                        `;
+                    }
+                }).join('')}
+            </div>
+        ` : '<div class="no-results"><p>未找到相关内容</p></div>'}
     `;
 }
 
@@ -310,64 +411,6 @@ function createSearchFeature() {
     `;
 
     // 将搜索框插入到快速导航区域
-    const quickNav = document.querySelector('.quick-nav .container');
-    if (quickNav) {
-        quickNav.insertBefore(searchContainer, quickNav.firstChild);
-    }
-
-    // 搜索功能实现
-    const searchInput = document.getElementById('searchInput');
-    const searchResults = document.getElementById('searchResults');
-
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase().trim();
-            
-            if (query.length < 2) {
-                searchResults.innerHTML = '';
-                searchResults.style.display = 'none';
-                return;
-            }
-
-            // 搜索所有链接
-            const allLinks = document.querySelectorAll('.resource-list a');
-            const results = [];
-
-            allLinks.forEach(link => {
-                const text = link.textContent.toLowerCase();
-                if (text.includes(query)) {
-                    results.push({
-                        title: link.textContent,
-                        url: link.href,
-                        category: link.closest('.resource-category')?.querySelector('.category-title')?.textContent || '未分类'
-                    });
-                }
-            });
-
-            // 显示搜索结果
-            if (results.length > 0) {
-                searchResults.innerHTML = results.slice(0, 10).map(result => `
-                    <div class="search-result-item">
-                        <a href="${result.url}" target="_blank">
-                            <div class="result-title">${result.title}</div>
-                            <div class="result-category">${result.category}</div>
-                        </a>
-                    </div>
-                `).join('');
-                searchResults.style.display = 'block';
-            } else {
-                searchResults.innerHTML = '<div class="no-results">未找到相关资源</div>';
-                searchResults.style.display = 'block';
-            }
-        });
-
-        // 点击外部区域隐藏搜索结果
-        document.addEventListener('click', function(e) {
-            if (!searchContainer.contains(e.target)) {
-                searchResults.style.display = 'none';
-            }
-        });
-    }
 }
 
 // 统计功能
