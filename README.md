@@ -1,183 +1,129 @@
-# Gopher Navigator - Go语言学习导航站
+# 安全工具导航系统
 
-一个专门为Go语言学习者打造的资源导航网站，收集整理了最全面、最实用的Go语言学习资源。
+一个专注于安全技术的知识库导航系统，包含漏洞挖掘、Web安全、逆向分析等多个领域的资源。
 
-## 🌟 特性
+## 功能特点
 
-- 📚 **丰富的资源分类** - 包含官方文档、教程学习、开发工具、社区论坛、开源项目等
-- 🔍 **智能搜索功能** - 快速查找所需资源，支持关键词搜索
-- 🎨 **现代化设计** - 参考topgoer.cn设计风格，美观易用
-- 📱 **响应式布局** - 完美适配各种设备
-- 🌙 **主题切换** - 支持明暗主题切换
-- ⚡ **性能优化** - 纯静态网站，加载速度快
-- 🚀 **GitHub Pages支持** - 一键部署到GitHub Pages
+- 🔍 **多层级导航**：支持多层级的知识分类，方便查找和管理
+- 🔎 **实时搜索**：快速搜索功能，帮助您迅速定位所需内容
+- 🛠️ **个性化配置**：可自定义的导航结构和内容展示
+- 🎨 **美观界面**：响应式设计，支持暗黑模式
+- ⚙️ **配置编辑器**：内置可视化配置编辑工具
 
-## 📁 项目结构
+## 快速开始
 
-```
-gopher-navigator/
-├── index.html          # 主页面
-├── css/
-│   └── style.css       # 样式文件
-├── js/
-│   └── script.js       # 交互脚本
-├── README.md           # 项目说明
-└── docs/              # 文档目录
-```
-
-## 🚀 快速开始
-
-### 本地预览
-
-1. 克隆项目到本地：
+1. 克隆本仓库
 ```bash
-git clone https://github.com/yourusername/gopher-navigator.git
-cd gopher-navigator
+git clone https://github.com/yourusername/security-navigation.git
+cd security-navigation
 ```
 
-2. 使用任意HTTP服务器启动项目：
+2. 使用任意HTTP服务器运行
 ```bash
-# 使用Python
-python -m http.server 8000
-
-# 使用Node.js
+# 使用Python简易HTTP服务器
+python -m http.server 8080
+# 或使用Node.js的http-server
 npx http-server
-
-# 使用Live Server (VS Code插件)
-# 右键index.html -> Open with Live Server
 ```
 
-3. 浏览器访问 `http://localhost:8000`
+3. 在浏览器中访问 `http://localhost:8080`
 
-### GitHub Pages部署
+## 部署到GitHub Pages
 
-#### 方法一：自动部署 (推荐)
+1. Fork本仓库到您的GitHub账号
 
-1. Fork这个项目到你的GitHub账户
-
-2. 进入项目设置页面：
-   - 点击仓库的 "Settings" 选项卡
-   - 在左侧菜单中找到 "Pages"
-
-3. 配置GitHub Pages：
-   - **Source**: 选择 "GitHub Actions"
+2. 在仓库设置中启用GitHub Pages
+   - 进入仓库设置 -> Pages
+   - 选择分支（通常是main或master）
    - 保存设置
 
-4. 检查权限设置：
-   - 进入 "Settings" → "Actions" → "General"
-   - Workflow permissions: 选择 "Read and write permissions"
-   - 勾选 "Allow GitHub Actions to create and approve pull requests"
+3. 几分钟后，您的网站将在 `https://yourusername.github.io/security-navigation` 上线
 
-5. 推送代码到main分支，GitHub Actions会自动部署
+## 自定义配置
 
-#### 方法二：如果遇到部署错误
+### 方法1：使用内置编辑器
 
-如果看到 "Get Pages site failed" 错误：
+1. 访问 `/admin/config-editor.html`
+2. 加载当前配置
+3. 编辑配置（添加/删除/修改资源）
+4. 保存配置文件并上传到您的仓库
 
-1. **使用备用配置**：将 `.github/workflows/deploy-alternative.yml` 重命名为 `deploy.yml`
+### 方法2：直接编辑配置文件
 
-2. **或者使用传统分支部署**：
-   - 在仓库设置中，Source 选择 "Deploy from a branch" 
-   - Branch 选择 "main"，Folder 选择 "/ (root)"
+1. 编辑 `js/config.js` 文件
+2. 按照JSON格式添加或修改资源
+3. 提交并推送更改
 
-3. **详细故障排除**：参考 `GitHub_Pages_Setup.md` 文件
+## 配置文件结构
 
-#### 验证部署
-网站将在 `https://yourusername.github.io/gopher-navigator` 上线，通常需要5-10分钟生效。
+```javascript
+{
+  "app": {
+    "title": "安全知识库导航",
+    "description": "专注于安全技术的知识库导航系统",
+    "version": "2.0.0"
+  },
+  "tabs": [
+    {
+      "id": "security_tools",
+      "name": "安全工具",
+      "icon": "fas fa-shield-alt",
+      "description": "收集和整理各类安全工具"
+    },
+    // 更多标签页...
+  ],
+  "content": {
+    "security_tools": {
+      "categories": [
+        {
+          "id": "recon",
+          "name": "信息收集",
+          "icon": "fas fa-search",
+          "subcategories": [
+            {
+              "id": "asset_discovery",
+              "name": "资产发现",
+              "contentType": "table",
+              "data": [
+                {
+                  "name": "工具名称",
+                  "description": "工具描述",
+                  "links": [
+                    { "text": "GitHub", "url": "https://github.com/example/tool" }
+                  ],
+                  "tags": ["标签1", "标签2"]
+                }
+                // 更多工具...
+              ]
+            }
+            // 更多子分类...
+          ]
+        }
+        // 更多分类...
+      ]
+    }
+    // 更多标签页内容...
+  }
+}
+```
 
-### 自定义域名（可选）
+## 技术栈
 
-如果你有自己的域名，可以：
+- 纯原生JavaScript（无框架依赖）
+- CSS3用于样式和动画
+- Font Awesome图标库
+- JSONEditor用于配置编辑器
 
-1. 在项目根目录创建 `CNAME` 文件
-2. 在文件中写入你的域名，如：`gopher.example.com`
-3. 在你的域名DNS设置中添加CNAME记录，指向 `yourusername.github.io`
+## 贡献指南
 
-## 🛠️ 功能说明
+欢迎提交Pull Request或Issue来改进这个项目！
 
-### 核心功能
+1. Fork本仓库
+2. 创建您的特性分支 (`git checkout -b feature/amazing-feature`)
+3. 提交您的更改 (`git commit -m 'Add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 打开Pull Request
 
-- **分类导航**: 将Go语言资源按类别整理，方便查找
-- **搜索功能**: 输入关键词快速定位相关资源
-- **主题切换**: 支持明暗两种主题
-- **返回顶部**: 长页面快速返回顶部
-- **平滑滚动**: 页面内导航平滑滚动效果
+## 许可证
 
-### 快捷键
-
-- `Ctrl/Cmd + K`: 快速打开搜索框
-- `ESC`: 关闭搜索结果
-
-### 交互特性
-
-- 悬停效果和动画
-- 响应式设计
-- 无障碍访问支持
-- 访问统计（本地存储）
-
-## 📊 资源统计
-
-本站目前收录了：
-- 100+ 学习资源
-- 20+ 资源分类
-- 50+ 开源项目
-- 30+ 实用工具
-
-## 🤝 贡献指南
-
-欢迎为这个项目贡献资源和代码！
-
-### 添加新资源
-
-1. Fork项目
-2. 编辑 `index.html` 文件
-3. 在相应的分类中添加新的资源链接
-4. 提交Pull Request
-
-### 报告问题
-
-如果发现链接失效、分类错误或其他问题，请：
-1. 提交Issue详细描述问题
-2. 或直接提交Pull Request修复
-
-### 建议新功能
-
-欢迎在Issues中提出新功能建议。
-
-## 📝 更新日志
-
-### v1.0.0 (2024-01-15)
-- 🎉 首次发布
-- ✨ 基础导航功能
-- 🔍 搜索功能
-- 🎨 响应式设计
-- 🌙 主题切换
-
-## 🔗 相关链接
-
-- [Go官方网站](https://golang.org/)
-- [地鼠文档](https://www.topgoer.cn/)
-- [Go语言中文网](https://studygolang.com/)
-
-## 📄 许可证
-
-本项目采用 MIT 许可证。详情请见 [LICENSE](LICENSE) 文件。
-
-## 🙏 致谢
-
-- [Go官方团队](https://golang.org/) - 创造了优秀的Go语言
-- [地鼠文档](https://www.topgoer.cn/) - 设计灵感来源
-- 所有Go语言社区贡献者
-
-## 📞 联系方式
-
-如果你有任何问题或建议，欢迎通过以下方式联系：
-
-- GitHub Issues: [提交问题](https://github.com/yourusername/gopher-navigator/issues)
-- Email: your.email@example.com
-
----
-
-⭐ 如果这个项目对你有帮助，请给个Star支持一下！
-
-🚀 Happy Coding with Go!
+本项目采用MIT许可证 - 详见 [LICENSE](LICENSE) 文件

@@ -1,10 +1,31 @@
 // 等待DOM加载完成
 document.addEventListener('DOMContentLoaded', function() {
+    // 检查是否有预览配置
+    const urlParams = new URLSearchParams(window.location.search);
+    const isPreview = urlParams.get('preview') === 'true';
+    
+    if (isPreview) {
+        const previewConfig = localStorage.getItem('previewConfig');
+        if (previewConfig) {
+            try {
+                const parsedConfig = JSON.parse(previewConfig);
+                // 临时替换配置
+                Object.assign(appConfig, parsedConfig);
+                console.log('已加载预览配置');
+            } catch (error) {
+                console.error('加载预览配置失败:', error);
+            }
+        }
+    }
+    
     initializePage();
 });
 
 // 初始化页面
 function initializePage() {
+    console.log('开始初始化页面');
+    console.log('配置对象:', config);
+    
     // 更新页面标题
     document.title = config.app.title;
     const titleElement = document.querySelector('.nav-title h1');
@@ -12,8 +33,22 @@ function initializePage() {
         titleElement.textContent = config.app.title;
     }
 
+    // 初始化所有标签页的内容结构
+    if (config.tabs && config.tabs.length > 0) {
+        // 确保所有标签页都有内容对象
+        config.tabs.forEach(tab => {
+            if (!config.content[tab.id]) {
+                console.warn(`标签页 ${tab.id} 没有对应的内容配置，创建空配置`);
+                config.content[tab.id] = {
+                    categories: []
+                };
+            }
+        });
+    }
+
     loadTabs();
     if (config.tabs && config.tabs.length > 0) {
+        console.log('加载第一个标签页侧边栏:', config.tabs[0].id);
         loadSidebar(config.tabs[0].id);
     }
     initializeEventListeners();
@@ -24,10 +59,12 @@ function loadTabs() {
     const tabsContainer = document.querySelector('.nav-tabs');
     if (!tabsContainer) return;
 
-    tabsContainer.innerHTML = ''; // 清空现有内容
+    tabsContainer.replaceChildren(); // 清空现有内容
 
     if (!config.tabs || config.tabs.length === 0) return;
-
+    
+    console.log('加载标签页:', config.tabs); // 添加调试信息
+    
     config.tabs.forEach(tab => {
         const tabButton = document.createElement('button');
         tabButton.className = 'tab-item';
@@ -46,6 +83,8 @@ function loadTabs() {
 
 // 切换标签页
 function switchTab(tabId) {
+    console.log('切换标签页:', tabId);
+    
     // 更新标签页状态
     document.querySelectorAll('.tab-item').forEach(tab => {
         tab.classList.toggle('active', tab.getAttribute('data-tab') === tabId);
@@ -57,16 +96,44 @@ function switchTab(tabId) {
     // 清空内容区域
     const content = document.querySelector('.content');
     content.innerHTML = '';
+    
+    // 自动选择第一个子分类
+    setTimeout(() => {
+        const allSubHeaders = document.querySelectorAll('.nav-subgroup-header');
+        let firstLeafFound = false;
+        
+        // 遍历所有子分类头部，找到第一个没有子菜单的
+        for (let i = 0; i < allSubHeaders.length; i++) {
+            const subHeader = allSubHeaders[i];
+            if (!subHeader.querySelector('.submenu-icon')) {
+                subHeader.click();
+                firstLeafFound = true;
+                break;
+            }
+        }
+        
+        // 如果没有找到叶子节点，点击第一个子分类
+        if (!firstLeafFound && allSubHeaders.length > 0) {
+            allSubHeaders[0].click();
+        }
+    }, 100); // 短暂延迟确保DOM已更新
 }
 
 // 加载侧边栏
 function loadSidebar(tabId) {
+    console.log('加载侧边栏，标签页ID:', tabId);
+    
     const sidebar = document.querySelector('.category-nav');
     sidebar.innerHTML = '';
 
     // 从新的配置结构中获取内容
     const tabContent = config.content[tabId];
-    if (!tabContent || !tabContent.categories) return;
+    console.log('标签页内容:', tabContent);
+    
+    if (!tabContent || !tabContent.categories) {
+        console.error('标签页内容不存在或没有分类:', tabId);
+        return;
+    }
 
     tabContent.categories.forEach(category => {
         const categoryGroup = document.createElement('div');
@@ -83,25 +150,72 @@ function loadSidebar(tabId) {
         const content = document.createElement('div');
         content.className = 'nav-group-content';
 
-        category.subcategories.forEach(subcategory => {
-            const subgroup = document.createElement('div');
-            subgroup.className = 'nav-subgroup';
-            subgroup.innerHTML = `
-                <div class="nav-subgroup-header">
-                    <span>${subcategory.name}</span>
-                </div>
-            `;
-
-            subgroup.addEventListener('click', () => {
-                document.querySelectorAll('.nav-subgroup').forEach(sg => {
-                    sg.classList.remove('active');
-                });
-                subgroup.classList.add('active');
-                showContent(tabId, category, subcategory);
+        // 递归创建多级导航
+        function createSubcategories(subcategories, level = 0) {
+            const container = document.createElement('div');
+            container.className = `nav-level-${level}`;
+            
+            subcategories.forEach(subcategory => {
+                const subgroup = document.createElement('div');
+                subgroup.className = 'nav-subgroup';
+                
+                // 创建子分类头部
+                const subHeader = document.createElement('div');
+                subHeader.className = 'nav-subgroup-header';
+                
+                // 如果有子分类，添加展开/折叠图标
+                if (subcategory.subcategories && subcategory.subcategories.length > 0) {
+                    subHeader.innerHTML = `
+                        <span>${subcategory.name}</span>
+                        <i class="fas fa-chevron-right submenu-icon"></i>
+                    `;
+                } else {
+                    subHeader.innerHTML = `<span>${subcategory.name}</span>`;
+                }
+                
+                subgroup.appendChild(subHeader);
+                
+                // 如果有子分类，递归创建
+                if (subcategory.subcategories && subcategory.subcategories.length > 0) {
+                    const childrenContainer = createSubcategories(subcategory.subcategories, level + 1);
+                    childrenContainer.style.display = 'none'; // 默认隐藏子菜单
+                    subgroup.appendChild(childrenContainer);
+                    
+                    // 添加展开/折叠功能
+                    subHeader.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const icon = subHeader.querySelector('.submenu-icon');
+                        if (childrenContainer.style.display === 'none') {
+                            childrenContainer.style.display = 'block';
+                            icon.classList.remove('fa-chevron-right');
+                            icon.classList.add('fa-chevron-down');
+                        } else {
+                            childrenContainer.style.display = 'none';
+                            icon.classList.remove('fa-chevron-down');
+                            icon.classList.add('fa-chevron-right');
+                        }
+                    });
+                } else {
+                    // 如果是最终节点，添加点击事件显示内容
+                    subHeader.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        document.querySelectorAll('.nav-subgroup-header').forEach(sg => {
+                            sg.classList.remove('active');
+                        });
+                        subHeader.classList.add('active');
+                        showContent(tabId, category, subcategory);
+                    });
+                }
+                
+                container.appendChild(subgroup);
             });
-
-            content.appendChild(subgroup);
-        });
+            
+            return container;
+        }
+        
+        // 创建第一级子分类
+        const subcategoriesContainer = createSubcategories(category.subcategories);
+        content.appendChild(subcategoriesContainer);
 
         categoryGroup.appendChild(header);
         categoryGroup.appendChild(content);
@@ -113,10 +227,23 @@ function loadSidebar(tabId) {
         });
     });
 
-    // 默认点击第一个子分类
-    const firstSubgroup = sidebar.querySelector('.nav-subgroup');
-    if (firstSubgroup) {
-        firstSubgroup.click();
+    // 默认点击第一个没有子分类的子分类
+    const allSubHeaders = sidebar.querySelectorAll('.nav-subgroup-header');
+    let firstLeafFound = false;
+    
+    // 遍历所有子分类头部，找到第一个没有子菜单的
+    for (let i = 0; i < allSubHeaders.length; i++) {
+        const subHeader = allSubHeaders[i];
+        if (!subHeader.querySelector('.submenu-icon')) {
+            subHeader.click();
+            firstLeafFound = true;
+            break;
+        }
+    }
+    
+    // 如果没有找到叶子节点，点击第一个子分类
+    if (!firstLeafFound && allSubHeaders.length > 0) {
+        allSubHeaders[0].click();
     }
 }
 
@@ -126,6 +253,20 @@ function showContent(tabId, category, subcategory) {
 
     // 构建面包屑导航
     const breadcrumb = `${category.name} > ${subcategory.name}`;
+
+    // 检查是否有内容类型，如果没有则显示默认消息
+    if (!subcategory.contentType) {
+        content.innerHTML = `
+            <div class="content-header">
+                <h2>${subcategory.name}</h2>
+                <p class="breadcrumb">${breadcrumb}</p>
+            </div>
+            <div class="empty-content">
+                <p>此分类暂无内容</p>
+            </div>
+        `;
+        return;
+    }
 
     if (subcategory.contentType === 'table') {
         // 表格类型内容 - 用于工具链接等
@@ -141,35 +282,50 @@ function showContent(tabId, category, subcategory) {
                         <tr>
                             <th>名称</th>
                             <th>描述</th>
-                            <th>标签</th>
                             <th>链接</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${subcategory.data.map(item => `
+                        ${subcategory.data ? subcategory.data.map(item => `
                             <tr>
                                 <td class="tool-name">${item.name}</td>
                                 <td class="tool-description">${item.description}</td>
-                                <td class="tool-tags">
-                                    ${item.tags ? item.tags.map(tag => `<span class="tool-tag">${tag}</span>`).join('') : ''}
-                                </td>
                                 <td class="tool-links">
-                                    ${item.links.map(link => `
-                                        <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="tool-link">
-                                            <i class="fas fa-external-link-alt"></i>
-                                            ${link.text}
-                                        </a>
-                                    `).join('')}
+                                    ${item.links.map(link => {
+                                        // 根据链接类型选择合适的图标
+                                        let icon = 'fas fa-external-link-alt';
+                                        if (link.url.includes('github.com')) {
+                                            icon = 'fab fa-github';
+                                        } else if (link.url.includes('gitlab.com')) {
+                                            icon = 'fab fa-gitlab';
+                                        } else if (link.url.includes('gitee.com')) {
+                                            icon = 'fab fa-git-alt';
+                                        } else if (link.url.includes('youtube.com') || link.url.includes('youtu.be')) {
+                                            icon = 'fab fa-youtube';
+                                        } else if (link.url.includes('docs.') || link.url.endsWith('.md') || link.url.includes('documentation')) {
+                                            icon = 'fas fa-book';
+                                        } else if (link.url.includes('download') || link.url.endsWith('.zip') || link.url.endsWith('.tar.gz')) {
+                                            icon = 'fas fa-download';
+                                        }
+                                        
+                                        // 构建链接按钮 - 显示真实URL而不是文本
+                                        return `
+                                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="tool-link" title="${link.url}">
+                                                <i class="${icon}"></i>
+                                                ${link.url}
+                                            </a>
+                                        `;
+                                    }).join('')}
                                 </td>
                             </tr>
-                        `).join('')}
+                        `).join('') : '<tr><td colspan="3">暂无数据</td></tr>'}
                     </tbody>
                 </table>
             </div>
         `;
     } else if (subcategory.contentType === 'text') {
         // 文本类型内容 - 用于详细说明等
-        const data = subcategory.data;
+        const data = subcategory.data || { title: subcategory.name, description: '暂无描述', sections: [] };
         content.innerHTML = `
             <div class="content-header">
                 <h2>${data.title}</h2>
@@ -177,28 +333,57 @@ function showContent(tabId, category, subcategory) {
                 <p class="description">${data.description}</p>
             </div>
             <div class="text-content">
-                ${data.sections.map(section => `
+                ${data.sections && data.sections.length > 0 ? data.sections.map(section => `
                     <div class="content-section">
                         <h3>${section.title}</h3>
                         <ul class="content-list">
                             ${section.content.map(item => `<li>${item}</li>`).join('')}
                         </ul>
                     </div>
-                `).join('')}
+                `).join('') : '<div class="empty-section">暂无内容</div>'}
 
                 ${data.resources && data.resources.length > 0 ? `
                     <div class="resources-section">
                         <h3>相关资源</h3>
                         <div class="resource-links">
-                            ${data.resources.map(resource => `
-                                <a href="${resource.url}" target="_blank" rel="noopener noreferrer" class="resource-link">
-                                    <i class="fas fa-link"></i>
-                                    ${resource.title}
-                                </a>
-                            `).join('')}
+                            ${data.resources.map(resource => {
+                                // 根据链接类型选择合适的图标
+                                let icon = 'fas fa-link';
+                                if (resource.url.includes('github.com')) {
+                                    icon = 'fab fa-github';
+                                } else if (resource.url.includes('gitlab.com')) {
+                                    icon = 'fab fa-gitlab';
+                                } else if (resource.url.includes('gitee.com')) {
+                                    icon = 'fab fa-git-alt';
+                                } else if (resource.url.includes('youtube.com') || resource.url.includes('youtu.be')) {
+                                    icon = 'fab fa-youtube';
+                                } else if (resource.url.includes('docs.') || resource.url.endsWith('.md') || resource.url.includes('documentation')) {
+                                    icon = 'fas fa-book';
+                                } else if (resource.url.includes('download') || resource.url.endsWith('.zip') || resource.url.endsWith('.tar.gz')) {
+                                    icon = 'fas fa-download';
+                                }
+                                
+                                return `
+                                    <a href="${resource.url}" target="_blank" rel="noopener noreferrer" class="resource-link" title="${resource.url}">
+                                        <i class="${icon}"></i>
+                                        ${resource.url}
+                                    </a>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 ` : ''}
+            </div>
+        `;
+    } else {
+        // 未知内容类型
+        content.innerHTML = `
+            <div class="content-header">
+                <h2>${subcategory.name}</h2>
+                <p class="breadcrumb">${breadcrumb}</p>
+            </div>
+            <div class="unknown-content">
+                <p>未知的内容类型: ${subcategory.contentType}</p>
             </div>
         `;
     }
@@ -225,7 +410,7 @@ function searchTools(keyword) {
                         if (
                             item.name.toLowerCase().includes(keyword) ||
                             item.description.toLowerCase().includes(keyword) ||
-                            (item.tags && item.tags.some(tag => tag.toLowerCase().includes(keyword)))
+                            (item.links && item.links.some(link => link.url.toLowerCase().includes(keyword)))
                         ) {
                             searchResults.push({
                                 item,
@@ -275,18 +460,32 @@ function searchTools(keyword) {
                                 <p class="result-description">${result.item.description}</p>
                                 <p class="result-path">${result.tab} > ${result.category} > ${result.subcategory}</p>
                                 <div class="result-links">
-                                    ${result.item.links.map(link => `
-                                        <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="tool-link">
-                                            <i class="fas fa-external-link-alt"></i>
-                                            ${link.text}
-                                        </a>
-                                    `).join('')}
+                                    ${result.item.links.map(link => {
+                                        // 根据链接类型选择合适的图标
+                                        let icon = 'fas fa-external-link-alt';
+                                        if (link.url.includes('github.com')) {
+                                            icon = 'fab fa-github';
+                                        } else if (link.url.includes('gitlab.com')) {
+                                            icon = 'fab fa-gitlab';
+                                        } else if (link.url.includes('gitee.com')) {
+                                            icon = 'fab fa-git-alt';
+                                        } else if (link.url.includes('youtube.com') || link.url.includes('youtu.be')) {
+                                            icon = 'fab fa-youtube';
+                                        } else if (link.url.includes('docs.') || link.url.endsWith('.md') || link.url.includes('documentation')) {
+                                            icon = 'fas fa-book';
+                                        } else if (link.url.includes('download') || link.url.endsWith('.zip') || link.url.endsWith('.tar.gz')) {
+                                            icon = 'fas fa-download';
+                                        }
+                                        
+                                        // 构建链接按钮 - 显示真实URL而不是文本
+                                        return `
+                                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="tool-link" title="${link.url}">
+                                                <i class="${icon}"></i>
+                                                ${link.url}
+                                            </a>
+                                        `;
+                                    }).join('')}
                                 </div>
-                                ${result.item.tags ? `
-                                    <div class="result-tags">
-                                        ${result.item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                                    </div>
-                                ` : ''}
                             </div>
                         `;
                     } else {
@@ -306,11 +505,14 @@ function searchTools(keyword) {
 
 // 初始化事件监听
 function initializeEventListeners() {
+    console.log('初始化事件监听');
+    
     // 标签页切换
     document.querySelector('.nav-tabs').addEventListener('click', (e) => {
         const tabButton = e.target.closest('.tab-item');
         if (tabButton) {
             const tabId = tabButton.getAttribute('data-tab');
+            console.log('点击标签页:', tabId);
             switchTab(tabId);
         }
     });
@@ -541,185 +743,6 @@ function setupKeyboardShortcuts() {
         }
     });
 }
-
-// 添加额外的CSS样式
-const additionalStyles = `
-    .search-container {
-        margin-bottom: 2rem;
-        position: relative;
-        max-width: 500px;
-        margin: 0 auto 2rem;
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 1rem;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.3s ease;
-    }
-
-    .search-input:focus {
-        border-color: #00ADD8;
-    }
-
-    .search-results {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        max-height: 400px;
-        overflow-y: auto;
-        z-index: 1000;
-        display: none;
-    }
-
-    .search-result-item {
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .search-result-item:last-child {
-        border-bottom: none;
-    }
-
-    .search-result-item a {
-        display: block;
-        padding: 1rem;
-        text-decoration: none;
-        color: #333;
-        transition: background-color 0.3s ease;
-    }
-
-    .search-result-item a:hover {
-        background-color: #f8f9fa;
-    }
-
-    .result-title {
-        font-weight: 600;
-        margin-bottom: 0.2rem;
-    }
-
-    .result-category {
-        font-size: 0.8rem;
-        color: #666;
-    }
-
-    .no-results {
-        padding: 1rem;
-        text-align: center;
-        color: #666;
-    }
-
-    .back-to-top {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        background: #00ADD8;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        font-size: 1.2rem;
-        cursor: pointer;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        z-index: 1000;
-    }
-
-    .back-to-top.visible {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .back-to-top:hover {
-        background: #0088a8;
-        transform: translateY(-2px);
-    }
-
-    .theme-toggle {
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 50%;
-        transition: background-color 0.3s ease;
-    }
-
-    .theme-toggle:hover {
-        background-color: rgba(0, 173, 216, 0.1);
-    }
-
-    .nav-link.active {
-        color: #00ADD8;
-    }
-
-    .nav-link.active::after {
-        width: 100%;
-    }
-
-    .animate-in {
-        animation: fadeInUp 0.6s ease-out;
-    }
-
-    .dark-theme {
-        background-color: #1a1a1a;
-        color: #e0e0e0;
-    }
-
-    .dark-theme .header {
-        background: #2d2d2d;
-    }
-
-    .dark-theme .nav-link {
-        color: #e0e0e0;
-    }
-
-    .dark-theme .search-input {
-        background: #2d2d2d;
-        color: #e0e0e0;
-        border-color: #404040;
-    }
-
-    .dark-theme .search-results {
-        background: #2d2d2d;
-        border-color: #404040;
-    }
-
-    .dark-theme .search-result-item a {
-        color: #e0e0e0;
-    }
-
-    .dark-theme .search-result-item a:hover {
-        background-color: #404040;
-    }
-
-    @media (max-width: 768px) {
-        .search-container {
-            margin: 0 1rem 2rem;
-        }
-        
-        .back-to-top {
-            bottom: 15px;
-            right: 15px;
-            width: 45px;
-            height: 45px;
-        }
-    }
-`;
-
-// 将额外样式添加到页面
-const styleSheet = document.createElement('style');
-styleSheet.textContent = additionalStyles;
-document.head.appendChild(styleSheet);
 
 // 数据存储
 let knowledgeBase = {

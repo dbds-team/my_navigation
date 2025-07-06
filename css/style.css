@@ -146,32 +146,32 @@ main {
 }
 
 .nav-subgroup {
-    padding: 0.75rem 1rem;
-    margin: 0.25rem 0;
-    border-radius: 6px;
-    cursor: pointer;
+    padding: 0;
     transition: all 0.3s ease;
+}
+
+.nav-subgroup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
     border-left: 3px solid transparent;
 }
 
-.nav-subgroup:hover {
-    background: #f8f9fa;
-    border-left-color: #3498db;
+.nav-subgroup-header:hover {
+    background-color: rgba(52, 152, 219, 0.05);
 }
 
-.nav-subgroup.active {
-    background: #e3f2fd;
-    border-left-color: #3498db;
-    color: #1976d2;
+.nav-subgroup.active .nav-subgroup-header {
+    color: #1a73e8;
+    background-color: #e8f0fe;
 }
 
 .nav-subgroup-header span {
     display: block;
     font-weight: 500;
-}
-
-
-    height: 32px;
 }
 
 .site-title {
@@ -875,13 +875,19 @@ main {
 }
 
 .tool-tag {
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    color: #1565c0;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.75rem;
+    display: inline-block;
+    padding: 0.3rem 0.6rem;
+    margin: 0.2rem;
+    background-color: #e9f5fe;
+    color: #3498db;
+    border-radius: 4px;
+    font-size: 0.8rem;
     font-weight: 500;
-    border: 1px solid #90caf9;
+    transition: all 0.2s ease;
+}
+
+.tool-tag:hover {
+    background-color: #d0e8fb;
 }
 
 .tools-table .tool-links {
@@ -891,21 +897,55 @@ main {
 }
 
 .tool-link {
-    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-    color: white !important;
-    text-decoration: none;
-    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    margin: 0.25rem;
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
     border-radius: 6px;
-    font-size: 0.85rem;
+    color: #333;
+    text-decoration: none;
     font-weight: 500;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+    transition: all 0.2s ease;
 }
 
 .tool-link:hover {
+    background-color: #e9ecef;
+    border-color: #3498db;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
-    text-decoration: none;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.tool-link i {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+    color: #3498db;
+}
+
+/* 针对不同类型的链接设置不同的图标颜色 */
+.tool-link i.fab.fa-github {
+    color: #24292e;
+}
+
+.tool-link i.fab.fa-gitlab {
+    color: #fc6d26;
+}
+
+.tool-link i.fab.fa-git-alt {
+    color: #f05032;
+}
+
+.tool-link i.fab.fa-youtube {
+    color: #ff0000;
+}
+
+.tool-link i.fas.fa-book {
+    color: #28a745;
+}
+
+.tool-link i.fas.fa-download {
+    color: #6f42c1;
 }
 
 /* 响应式设计 */
@@ -1472,19 +1512,53 @@ main {
 .resource-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    color: #3498db;
+    padding: 0.6rem 1rem;
+    margin: 0.5rem;
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    color: #333;
     text-decoration: none;
     font-weight: 500;
-    padding: 0.5rem 1rem;
-    border: 1px solid #3498db;
-    border-radius: 6px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .resource-link:hover {
-    background: #3498db;
-    color: white;
+    background-color: #e9ecef;
+    border-color: #3498db;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.resource-link i {
+    margin-right: 0.6rem;
+    font-size: 1.2rem;
+    color: #3498db;
+}
+
+/* 针对不同类型的资源链接设置不同的图标颜色 */
+.resource-link i.fab.fa-github {
+    color: #24292e;
+}
+
+.resource-link i.fab.fa-gitlab {
+    color: #fc6d26;
+}
+
+.resource-link i.fab.fa-git-alt {
+    color: #f05032;
+}
+
+.resource-link i.fab.fa-youtube {
+    color: #ff0000;
+}
+
+.resource-link i.fas.fa-book {
+    color: #28a745;
+}
+
+.resource-link i.fas.fa-download {
+    color: #6f42c1;
 }
 
 /* 搜索结果样式 */
@@ -1541,4 +1615,286 @@ main {
     text-align: center;
     padding: 3rem;
     color: #666;
+}
+
+/* ---- Moved from script.js additionalStyles ---- */
+.search-container {
+    margin-bottom: 2rem;
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto 2rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: #00ADD8;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.search-result-item {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item a {
+    display: block;
+    padding: 1rem;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.3s ease;
+}
+
+.search-result-item a:hover {
+    background-color: #f8f9fa;
+}
+
+.result-title {
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.result-category {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.no-results {
+    padding: 1rem;
+    text-align: center;
+    color: #666;
+}
+
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: #00ADD8;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.back-to-top:hover {
+    background: #0088a8;
+    transform: translateY(-2px);
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background-color: rgba(0, 173, 216, 0.1);
+}
+
+.nav-link.active {
+    color: #00ADD8;
+}
+
+.nav-link.active::after {
+    width: 100%;
+}
+
+.animate-in {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.dark-theme {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.dark-theme .header {
+    background: #2d2d2d;
+}
+
+.dark-theme .nav-link {
+    color: #e0e0e0;
+}
+
+.dark-theme .search-input {
+    background: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #404040;
+}
+
+.dark-theme .search-results {
+    background: #2d2d2d;
+    border-color: #404040;
+}
+
+.dark-theme .search-result-item a {
+    color: #e0e0e0;
+}
+
+.dark-theme .search-result-item a:hover {
+    background-color: #404040;
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        margin: 0 1rem 2rem;
+    }
+    
+    .back-to-top {
+        bottom: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+    }
+}
+/* ---- End moved styles ---- */
+
+/* 多级导航样式 */
+.nav-level-0 {
+    margin-left: 0;
+}
+
+.nav-level-1 {
+    margin-left: 15px;
+    border-left: 1px dashed #e0e0e0;
+    padding-left: 5px;
+}
+
+.nav-level-2 {
+    margin-left: 15px;
+    border-left: 1px dashed #e0e0e0;
+    padding-left: 5px;
+}
+
+.nav-level-3 {
+    margin-left: 15px;
+    border-left: 1px dashed #e0e0e0;
+    padding-left: 5px;
+}
+
+/* 子菜单图标样式 */
+.submenu-icon {
+    margin-left: 5px;
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+    color: #888;
+}
+
+/* 活跃状态的子分类 */
+.nav-subgroup-header.active {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-left: 3px solid #3498db;
+    color: #3498db;
+    font-weight: 500;
+}
+
+/* 子分类悬停效果 */
+.nav-subgroup-header:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+/* 不同层级的缩进和视觉区分 */
+.nav-level-1 .nav-subgroup-header {
+    padding-left: 20px;
+}
+
+.nav-level-2 .nav-subgroup-header {
+    padding-left: 25px;
+    font-size: 0.95em;
+}
+
+.nav-level-3 .nav-subgroup-header {
+    padding-left: 30px;
+    font-size: 0.9em;
+}
+
+/* 层级指示器 */
+.nav-level-1::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+/* 暗色模式适配 */
+.dark-mode .nav-level-1,
+.dark-mode .nav-level-2,
+.dark-mode .nav-level-3 {
+    border-left-color: #444;
+}
+
+.dark-mode .nav-subgroup-header.active {
+    background-color: rgba(52, 152, 219, 0.2);
+    border-left-color: #3498db;
+}
+
+/* 空内容提示样式 */
+.empty-content, .empty-section, .unknown-content {
+    padding: 2rem;
+    text-align: center;
+    color: #888;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.empty-content p, .unknown-content p {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.empty-section {
+    padding: 1.5rem;
+    font-style: italic;
+}
+
+/* 暗色模式适配 */
+.dark-mode .empty-content,
+.dark-mode .empty-section,
+.dark-mode .unknown-content {
+    background-color: #2a2a2a;
+    color: #aaa;
 }

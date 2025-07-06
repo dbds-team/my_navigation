@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全工具导航 - 配置编辑器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .editor-container {
+            display: flex;
+            height: calc(100vh - 100px);
+            gap: 20px;
+        }
+        
+        .editor {
+            flex: 1;
+            height: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+        }
+        
+        .sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .template-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: var(--background-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .template-item:hover {
+            background: #e9ecef;
+        }
+        
+        .template-item h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .template-item p {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .status-bar {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>安全工具导航 - 配置编辑器</h1>
+            <div class="btn-group">
+                <button id="btn-load" class="btn"><i class="fas fa-upload"></i> 加载配置</button>
+                <button id="btn-save" class="btn"><i class="fas fa-save"></i> 保存配置</button>
+                <button id="btn-preview" class="btn"><i class="fas fa-eye"></i> 预览</button>
+                <a href="../index.html" class="btn"><i class="fas fa-home"></i> 返回首页</a>
+            </div>
+        </div>
+        
+        <div class="editor-container">
+            <div class="sidebar">
+                <h2>模板库</h2>
+                <div class="template-item" data-template="tool">
+                    <h3>工具模板</h3>
+                    <p>添加新的安全工具</p>
+                </div>
+                <div class="template-item" data-template="category">
+                    <h3>分类模板</h3>
+                    <p>添加新的工具分类</p>
+                </div>
+                <div class="template-item" data-template="subcategory">
+                    <h3>子分类模板</h3>
+                    <p>添加新的子分类</p>
+                </div>
+                <div class="template-item" data-template="tab">
+                    <h3>标签页模板</h3>
+                    <p>添加新的顶部标签页</p>
+                </div>
+                
+                <div id="status-message" class="status-bar hidden"></div>
+            </div>
+            
+            <div id="jsoneditor" class="editor"></div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.js"></script>
+    <script>
+        // 初始化编辑器
+        const container = document.getElementById('jsoneditor');
+        const options = {
+            mode: 'tree',
+            modes: ['tree', 'view', 'form', 'code', 'text'],
+            onChangeJSON: function(json) {
+                // 当JSON变化时的回调
+                console.log('JSON已更改');
+            }
+        };
+        const editor = new JSONEditor(container, options);
+        
+        // 模板数据
+        const templates = {
+            tool: {
+                name: "新工具名称",
+                description: "工具描述",
+                links: [
+                    { text: "GitHub", url: "https://github.com/username/repo" }
+                ],
+                tags: ["标签1", "标签2"]
+            },
+            category: {
+                id: "category_id",
+                name: "分类名称",
+                icon: "fas fa-folder",
+                subcategories: []
+            },
+            subcategory: {
+                id: "subcategory_id",
+                name: "子分类名称",
+                contentType: "table",
+                data: []
+            },
+            tab: {
+                id: "tab_id",
+                name: "标签页名称",
+                icon: "fas fa-tag",
+                description: "标签页描述"
+            }
+        };
+        
+        // 加载配置
+        document.getElementById('btn-load').addEventListener('click', async function() {
+            try {
+                const response = await fetch('../js/config.js');
+                const text = await response.text();
+                
+                // 提取JSON部分
+                const jsonMatch = text.match(/const appConfig = ({[\s\S]*?});/);
+                if (jsonMatch && jsonMatch[1]) {
+                    // 将JavaScript对象字符串转换为JSON
+                    const jsonStr = jsonMatch[1]
+                        .replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2":') // 确保所有键都有引号
+                        .replace(/'/g, '"'); // 将单引号替换为双引号
+                    
+                    try {
+                        const json = JSON.parse(jsonStr);
+                        editor.set(json);
+                        showStatus('配置已成功加载', 'success');
+                    } catch (parseError) {
+                        console.error('解析JSON失败:', parseError);
+                        showStatus('解析配置失败: ' + parseError.message, 'error');
+                    }
+                } else {
+                    showStatus('无法从配置文件中提取JSON', 'error');
+                }
+            } catch (error) {
+                console.error('加载配置失败:', error);
+                showStatus('加载配置失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 保存配置
+        document.getElementById('btn-save').addEventListener('click', function() {
+            try {
+                const json = editor.get();
+                const jsonString = JSON.stringify(json, null, 2);
+                
+                // 创建配置文件内容
+                const configContent = `// 统一配置对象 - 所有数据的中心配置
+// 注意: 这个文件可以被外部编辑器修改，请保持JSON格式有效
+const appConfig = ${jsonString};
+
+// 导出统一配置对象，供其他文件使用
+// 为了向后兼容，保留原有的变量名
+const config = appConfig;
+
+// 为了支持外部编辑器，提供加载和保存配置的功能
+function loadConfigFromJSON(jsonString) {
+    try {
+        const newConfig = JSON.parse(jsonString);
+        // 将新配置合并到现有配置中
+        Object.assign(appConfig, newConfig);
+        return true;
+    } catch (error) {
+        console.error('加载配置失败:', error);
+        return false;
+    }
+}
+
+function getConfigAsJSON() {
+    return JSON.stringify(appConfig, null, 2);
+}`;
+                
+                // 创建下载链接
+                const blob = new Blob([configContent], { type: 'text/javascript' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'config.js';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showStatus('配置已保存为下载文件', 'success');
+            } catch (error) {
+                console.error('保存配置失败:', error);
+                showStatus('保存配置失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 预览
+        document.getElementById('btn-preview').addEventListener('click', function() {
+            try {
+                const json = editor.get();
+                localStorage.setItem('previewConfig', JSON.stringify(json));
+                window.open('../index.html?preview=true', '_blank');
+            } catch (error) {
+                console.error('预览失败:', error);
+                showStatus('预览失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 添加模板
+        document.querySelectorAll('.template-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const templateType = this.getAttribute('data-template');
+                const template = templates[templateType];
+                
+                if (template) {
+                    // 根据模板类型，将模板插入到正确的位置
+                    try {
+                        const currentJson = editor.get();
+                        
+                        switch (templateType) {
+                            case 'tool':
+                                // 找到第一个子分类并添加工具
+                                if (currentJson.content && 
+                                    currentJson.content.security_tools && 
+                                    currentJson.content.security_tools.categories && 
+                                    currentJson.content.security_tools.categories.length > 0 &&
+                                    currentJson.content.security_tools.categories[0].subcategories &&
+                                    currentJson.content.security_tools.categories[0].subcategories.length > 0) {
+                                    
+                                    const firstSubcategory = currentJson.content.security_tools.categories[0].subcategories[0];
+                                    if (firstSubcategory.data) {
+                                        firstSubcategory.data.push(template);
+                                        editor.set(currentJson);
+                                        showStatus('工具模板已添加', 'success');
+                                    }
+                                } else {
+                                    showStatus('找不到合适的位置添加工具', 'error');
+                                }
+                                break;
+                                
+                            case 'category':
+                                // 添加到第一个标签页
+                                if (currentJson.content && currentJson.content.security_tools) {
+                                    if (!currentJson.content.security_tools.categories) {
+                                        currentJson.content.security_tools.categories = [];
+                                    }
+                                    currentJson.content.security_tools.categories.push(template);
+                                    editor.set(currentJson);
+                                    showStatus('分类模板已添加', 'success');
+                                } else {
+                                    showStatus('找不到合适的位置添加分类', 'error');
+                                }
+                                break;
+                                
+                            case 'subcategory':
+                                // 添加到第一个分类
+                                if (currentJson.content && 
+                                    currentJson.content.security_tools && 
+                                    currentJson.content.security_tools.categories && 
+                                    currentJson.content.security_tools.categories.length > 0) {
+                                    
+                                    const firstCategory = currentJson.content.security_tools.categories[0];
+                                    if (!firstCategory.subcategories) {
+                                        firstCategory.subcategories = [];
+                                    }
+                                    firstCategory.subcategories.push(template);
+                                    editor.set(currentJson);
+                                    showStatus('子分类模板已添加', 'success');
+                                } else {
+                                    showStatus('找不到合适的位置添加子分类', 'error');
+                                }
+                                break;
+                                
+                            case 'tab':
+                                // 添加到标签页数组
+                                if (currentJson.tabs) {
+                                    currentJson.tabs.push(template);
+                                    
+                                    // 同时在content中创建对应的内容结构
+                                    if (!currentJson.content) {
+                                        currentJson.content = {};
+                                    }
+                                    currentJson.content[template.id] = {
+                                        categories: []
+                                    };
+                                    
+                                    editor.set(currentJson);
+                                    showStatus('标签页模板已添加', 'success');
+                                } else {
+                                    showStatus('找不到标签页数组', 'error');
+                                }
+                                break;
+                        }
+                    } catch (error) {
+                        console.error('添加模板失败:', error);
+                        showStatus('添加模板失败: ' + error.message, 'error');
+                    }
+                }
+            });
+        });
+        
+        // 显示状态消息
+        function showStatus(message, type) {
+            const statusElement = document.getElementById('status-message');
+            statusElement.textContent = message;
+            statusElement.className = 'status-bar';
+            
+            if (type === 'success') {
+                statusElement.classList.add('status-success');
+            } else if (type === 'error') {
+                statusElement.classList.add('status-error');
+            }
+            
+            statusElement.classList.remove('hidden');
+            
+            // 5秒后自动隐藏
+            setTimeout(() => {
+                statusElement.classList.add('hidden');
+            }, 5000);
+        }
+        
+        // 页面加载时自动加载配置
+        window.addEventListener('DOMContentLoaded', async function() {
+            document.getElementById('btn-load').click();
+        });
+    </script>
+</body>
+</html> 
