@@ -126,16 +126,17 @@ func exportConfig(jsFilePath, yamlFilePath string, pretty bool) {
 		log.Fatalf("%s❌ 解析JS文件失败: %v%s", colorRed, err, colorReset)
 	}
 
-	// 直接输出为JSON格式（避免YAML库的Unicode问题）
-	jsonBytes, err := json.MarshalIndent(jsonData, "", "  ")
+	// 转换为YAML格式（使用简化逻辑确保中文正常）
+	yamlBytes, err := yaml.Marshal(jsonData)
 	if err != nil {
-		log.Fatalf("%s❌ 转换为JSON失败: %v%s", colorRed, err, colorReset)
+		log.Fatalf("%s❌ 转换为YAML失败: %v%s", colorRed, err, colorReset)
 	}
 
-	yamlContent := string(jsonBytes)
+	// 应用Unicode修复确保中文正常显示
+	yamlContent := ultraSimpleChineseFix(string(yamlBytes))
 
-	// 检查中文是否正常显示
-	fmt.Printf("%s💡 原始数据中的中文显示正常，输出为JSON格式%s\n", colorGreen, colorReset)
+	// 验证中文是否修复成功
+	fmt.Printf("%s💡 使用简化逻辑和Unicode修复，输出YAML格式%s\n", colorGreen, colorReset)
 
 	// 确保输出目录存在
 	outputDir := filepath.Dir(yamlFilePath)
