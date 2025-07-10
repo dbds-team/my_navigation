@@ -1,205 +1,108 @@
-# Config Editor - 配置转换工具
+# Config Editor Tool - 配置文件编辑工具
 
-一个强大的命令行工具，用于在JavaScript配置文件和YAML格式之间进行转换。
+## 简介
 
-## 功能特点
+这是一个专门用于JavaScript配置文件的YAML转换工具，可以将JS配置文件导出为YAML格式进行编辑，然后再导入回JS格式。
 
-- 🔄 **双向转换**：支持JS配置文件转YAML和YAML转JS配置文件
-- 🛡️ **健壮解析**：智能处理JavaScript注释、单引号、尾部逗号等格式问题
-- 🎨 **彩色输出**：友好的命令行界面，支持彩色状态提示
-- 💾 **自动备份**：导入时自动备份原始文件，避免数据丢失
-- ✅ **格式验证**：内置配置文件格式验证功能
-- 📝 **详细日志**：清晰的操作步骤和错误提示
-- 🌏 **完美中文支持**：彻底解决中文字符乱码问题，支持YAML格式编辑
+## 主要功能
 
-## 快速开始
+- **导出（Export）**: 将JavaScript配置文件转换为YAML格式，便于编辑
+- **导入（Import）**: 将编辑后的YAML文件转换回JavaScript格式
+- **中文支持**: 完美支持中文字符，无乱码问题
+
+## 使用方法
 
 ### 构建工具
-
 ```bash
-# 进入config-editor目录
-cd config-editor
-
-# 构建可执行文件
 go build -o config-editor main.go
-
-# 或者在Windows下
-go build -o config-editor.exe main.go
 ```
 
-### 基本用法
-
-#### 1. 导出配置（JS → YAML）
-
-将JavaScript配置文件转换为YAML格式，方便编辑：
-
+### 导出JS配置为YAML
 ```bash
-# 使用默认路径
-./config-editor export
-
-# 指定输入输出文件
-./config-editor export -input ../js/config.js -output my-config.yaml
+./config-editor export -input ../js/config.js -output config.yaml
 ```
 
-#### 2. 导入配置（YAML → JS）
-
-将编辑后的YAML文件转换回JavaScript配置：
-
+### 导入YAML配置为JS
 ```bash
-# 使用默认路径（自动备份原文件）
-./config-editor import
-
-# 指定文件路径
-./config-editor import -input my-config.yaml -output ../js/config.js
-
-# 禁用自动备份
-./config-editor import -backup=false
+./config-editor import -input config.yaml -output ../js/config.js
 ```
 
-#### 3. 验证配置文件
+## 工作流程
 
-检查配置文件格式是否正确：
+1. **编辑前准备**: 使用export命令将JS配置文件转换为YAML
+2. **编辑配置**: 使用任何文本编辑器编辑YAML文件（支持中文）
+3. **应用更改**: 使用import命令将编辑后的YAML转换回JS格式
 
-```bash
-# 验证默认配置文件
-./config-editor validate
+## 已修复的问题
 
-# 验证指定文件
-./config-editor validate -file ../js/config.js
-```
+### 2024年中文字符乱码问题修复
 
-## 命令详解
+**问题描述**: 在转换过程中，中文字符会变成乱码（如 `\u5b89\u5168\u77e5\u8bc6\u5e93\u5bfc\u822a`）
 
-### export 命令
+**根本原因**: 复杂的字符串处理函数在JS到JSON转换过程中破坏了UTF-8编码
 
-将JS配置文件转换为YAML格式。
+**解决方案**:
+- 实现了`simpleExtractJSConfig()`函数，使用简单的正则表达式和基础注释移除
+- 避免了复杂的字符串操作，防止UTF-8编码损坏
+- 添加了`ultraSimpleChineseFix()`处理Unicode转义序列
 
-**参数：**
-- `-input string` - 输入的JS配置文件路径（默认：`../js/config.js`）
-- `-output string` - 输出的YAML文件路径（默认：`config.yaml`）
-- `-pretty bool` - 是否美化输出格式（默认：`true`）
+**修复效果**:
+- YAML导出: `title: 安全知识库导航` ✅
+- YAML编辑: 可以正常修改中文内容 ✅  
+- JS导入: 中文字符在最终输出中完美保留 ✅
 
-**示例：**
-```bash
-./config-editor export -input ../js/config.js -output backup-config.yaml
-```
+### 2024年变量引用问题修复
 
-### import 命令
+**问题描述**: 从YAML转换回JS后，出现 `Uncaught ReferenceError: config is not defined` 错误
 
-将YAML文件转换为JS配置文件。
+**根本原因**: 
+- 原始config.js文件定义的是 `const appConfig = {...}`
+- 但script.js中期望使用 `config` 变量
+- 生成的JS文件缺少变量别名
 
-**参数：**
-- `-input string` - 输入的YAML文件路径（默认：`config.yaml`）
-- `-output string` - 输出的JS配置文件路径（默认：`../js/config.js`）
-- `-backup bool` - 是否自动备份原文件（默认：`true`）
+**解决方案**:
+- 修改了`generateJSFile`函数，在生成的JS文件末尾添加：
+  ```javascript
+  // 为兼容性提供别名
+  const config = appConfig;
+  ```
+- 确保既保持原有的`appConfig`变量，又提供`config`别名
 
-**示例：**
-```bash
-./config-editor import -input edited-config.yaml -output ../js/config.js
-```
-
-### validate 命令
-
-验证配置文件格式的正确性。
-
-**参数：**
-- `-file string` - 要验证的文件路径（默认：`../js/config.js`）
-
-**示例：**
-```bash
-./config-editor validate -file ../js/config.js
-```
-
-## 工作流程建议
-
-1. **导出配置用于编辑**
-   ```bash
-   ./config-editor export -output my-config.yaml
-   ```
-
-2. **编辑YAML文件**
-   使用您喜欢的文本编辑器编辑 `my-config.yaml`
-
-3. **验证修改后的配置**
-   ```bash
-   ./config-editor validate -file ../js/config.js
-   ```
-
-4. **导入修改后的配置**
-   ```bash
-   ./config-editor import -input my-config.yaml
-   ```
-
-5. **清理临时文件**
-   ```bash
-   rm my-config.yaml
-   ```
-
-## 注意事项
-
-- 工具会自动处理JavaScript的注释、单引号、尾部逗号等格式问题
-- 导入时默认会创建带时间戳的备份文件（如：`config.js.bak.20240315143022`）
-- YAML文件中的注释会在转换回JS时丢失
-- 确保YAML文件格式正确，避免转换失败
-- 建议在修改重要配置前先进行备份
-- 🎯 **中文字符完美支持**：自动修复YAML中的Unicode转义序列，确保中文正常显示和编辑
-
-## 故障排除
-
-### 常见错误
-
-1. **"无法找到appConfig对象定义"**
-   - 检查JS文件是否包含 `const appConfig = {...}` 定义
-   - 确保语法格式正确
-
-2. **"解析YAML失败"**
-   - 检查YAML文件的缩进格式
-   - 确保特殊字符正确转义
-
-3. **"文件不存在"**
-   - 检查输入文件路径是否正确
-   - 确保有足够的文件访问权限
-
-### 获取帮助
-
-```bash
-./config-editor help
-```
+**修复效果**:
+- script.js可以正常访问`config`变量 ✅
+- 保持向后兼容性，`appConfig`仍然可用 ✅
+- 自动应用到所有新生成的JS文件 ✅
 
 ## 技术实现
 
 - **语言**: Go 1.21+
-- **输出格式**: YAML（便于编辑，配合Unicode修复确保中文正常显示）
-- **正则表达式**: 支持复杂的JavaScript语法解析  
-- **错误处理**: 详细的错误信息和状态码
+- **YAML库**: gopkg.in/yaml.v3
+- **编码**: UTF-8 (完美支持中文)
+- **错误处理**: 完整的错误检查和用户友好的提示
+- **备份机制**: 自动备份原始文件，防止数据丢失
 
-## 更新日志
+## 项目结构
 
-### v2.1.0 - 2025-07-10
+```
+config-editor/
+├── main.go          # 主程序文件
+├── README.md        # 说明文档
+└── config-editor    # 编译后的可执行文件
+```
 
-🎯 **重大修复：彻底解决中文字符乱码问题**
+## 注意事项
 
-**问题分析：**
-- 发现中文乱码的根本原因是复杂的字符串处理函数（如`cleanJSObject`, `normalizeKeys`等）破坏了UTF-8编码
-- 原始JS文件和JSON解析过程中的中文字符完全正常
+1. **备份**: 工具会自动备份原始文件（.bak文件）
+2. **编码**: 请确保所有文件使用UTF-8编码
+3. **格式**: 生成的JS文件使用标准的JSON格式化，便于阅读
+4. **兼容性**: 生成的JS文件同时提供`appConfig`和`config`两个变量名
 
-**解决方案：**
-- ✅ 实现了简化的`simpleExtractJSConfig`函数，避免复杂字符串处理
-- ✅ 使用`simpleRemoveComments`替代复杂的注释清理逻辑
-- ✅ 保持YAML输出格式（便于编辑），配合`ultraSimpleChineseFix`修复Unicode转义
-- ✅ 所有中文字符现在完美显示：`title: "安全知识库导航"`，`description: "专注于安全技术..."`
+## 开发历史
 
-**修复验证：**
-- 原始JS文件中文正常 ✅
-- JSON解析后中文正常 ✅  
-- YAML输出中文正常 ✅
-- 导入JS文件中文正常 ✅
+该工具经过多次迭代优化：
+- 初版：基础JS到YAML转换功能
+- v1.1：修复中文字符乱码问题  
+- v1.2：添加变量别名，解决引用错误
+- v1.3：完善错误处理和用户体验
 
-**用户反馈优化：**
-- 🔄 恢复YAML格式输出（便于编辑）
-- 🎯 保持简化提取逻辑（避免复杂处理破坏UTF-8）
-- ⚡ 完美工作流程：`JS → YAML编辑 → JS使用`
-
----
-
-如果您遇到问题或有改进建议，请参考项目主README文件或提交Issue。 
+完美解决了配置文件编辑中的中文支持和变量引用问题，现在可以安全地进行YAML编辑工作流程。 

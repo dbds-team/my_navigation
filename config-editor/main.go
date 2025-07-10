@@ -418,7 +418,7 @@ func generateJSFile(data map[string]interface{}, filePath string) error {
 
 `, time.Now().Format("2006-01-02 15:04:05"))
 
-	jsContent := header + "const appConfig = " + string(jsonBytes) + ";\n"
+	jsContent := header + "const appConfig = " + string(jsonBytes) + ";\n\n// 为兼容性提供别名\nconst config = appConfig;\n"
 
 	// 确保输出目录存在
 	outputDir := filepath.Dir(filePath)

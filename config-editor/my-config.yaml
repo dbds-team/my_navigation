@@ -1,6 +1,6 @@
 # 安全工具导航系统配置文件
 # 从 ../js/config.js 导出
-# 导出时间: 2025-07-10 22:45:24
+# 导出时间: 2025-07-10 22:56:16
 # 注意: 修改此文件后请使用 'config-editor import' 命令导入到JS文件
 
 app:
@@ -304,7 +304,7 @@ tabs:
     - description: 收集和整理各类安全工具
       icon: fas fa-shield-alt
       id: security_tools
-      name: 安全工具
+      name: 安全工具2
     - description: 安全学习相关的教程和资料
       icon: fas fa-book
       id: learning_resources
